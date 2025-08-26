@@ -74,6 +74,11 @@ def plot_data(df, title="Stock prices"):
     ax.set_ylabel("Price")
     plt.show()
 
+def save_plot(filename):
+    """Save the current figure using the provided filename."""
+    plt.savefig("images/" + filename + ".png", format="png")
+    plt.close()
+
 def run_episode_with_bankroll(win_prob, initial_bankroll=256):
     episode_winnings = 0
     winnings = [0]
@@ -134,34 +139,55 @@ def run_episode(win_prob):
 
 def generate_figure_1(win_prob):
     """Create Figure 1."""
-
-    for i in range(10):
+    num_episodes = 10
+    for i in range(num_episodes):
         winnings = run_episode(win_prob)
         plt.plot(winnings, label=f'Episode {i+1}')
     
-    winnings = run_episode(win_prob)
     plt.plot(winnings)
     plt.title("10 Episodes of the Martingale Betting Strategy")
     plt.xlabel("Spin Number")
     plt.ylabel("Winnings ($)")
     plt.ylim(-256, 100)
     plt.xlim(0, 300)
+    plt.legend()
     plt.grid(True)
-    plt.show()
-
+    save_plot("Figure-1")
 
 
 def generate_figure_2(win_prob):
 
+    num_episodes = 1000
+    equal_80 = 0
+    greater_than_80 = 0
     winning_data = []
-    for _ in range(1000):
+    for _ in range(num_episodes):
         winning_data.append(run_episode(win_prob))
+        if winning_data[-1][-1] >= 80:
+            greater_than_80 += 1
+        
+        if winning_data[-1][-1] == 80:
+            equal_80 += 1
     
     winnings_arr = np.array(winning_data)
     means = np.mean(winnings_arr, axis=0)
     stds = np.std(winnings_arr, axis=0)
 
     upper_band, lower_band = get_bollinger_bands(np.array(means), np.array(stds))
+
+    prob_greater_than_80 = greater_than_80 / num_episodes
+    prob_equal_80 = equal_80 / num_episodes
+
+    # Print the results in a format suitable for a table
+    print("--------------------------------------------------")
+    print("Simulation Results for Experiment 1")
+    print("--------------------------------------------------")
+    print(f"| Total Episodes Simulated      | {num_episodes: <23} |")
+    print(f"| Episodes with Winnings >= $80 | {greater_than_80: <23} |")
+    print(f"| Episodes with Winnings = $80  | {equal_80: <23} |")
+    print(f"| Probability of Winnings >= $80| {prob_greater_than_80: <23.4f} |")
+    print(f"| Probability of Winnings = $80 | {prob_equal_80: <23.4f} |")
+    print("--------------------------------------------------")
 
     plt.plot(means, label='Mean')
     plt.plot(upper_band, label='Upper Band')
@@ -172,7 +198,8 @@ def generate_figure_2(win_prob):
     plt.xlim(0, 300)
     plt.ylim(-256, 100)
     plt.grid(True)
-    plt.show()
+    plt.legend()
+    save_plot("Figure-2")
 
 def generate_figure_3(win_prob):
     winning_data = []
@@ -194,7 +221,8 @@ def generate_figure_3(win_prob):
     plt.xlim(0, 300)
     plt.ylim(-256, 100)
     plt.grid(True)
-    plt.show()
+    plt.legend()
+    save_plot("Figure-3")
 
 def generate_figure_4(win_prob):
 
@@ -211,13 +239,14 @@ def generate_figure_4(win_prob):
     plt.plot(means, label='Mean')
     plt.plot(upper_band, label='Upper Band')
     plt.plot(lower_band, label='Lower Band')
-    plt.title("Mean Winnings per Episode with Bollinger Bands using 1 STDEV and Bankroll Limit")
+    plt.title("Mean Winnings per Episode with Bollinger & Bankroll Limit")
     plt.xlabel("Spin Number")
     plt.ylabel("Mean Winnings")
     plt.xlim(0, 300)
     plt.ylim(-256, 100)
     plt.grid(True)
-    plt.show()
+    plt.legend()
+    save_plot("Figure-4")
 
 def generate_figure_5(win_prob):
     winning_data = []
@@ -225,23 +254,22 @@ def generate_figure_5(win_prob):
         winning_data.append(run_episode_with_bankroll(win_prob))
     
     winnings_arr = np.array(winning_data)
-    mean = np.mean(winnings_arr, axis=0)
     median = np.median(winnings_arr, axis=0)
     stds = np.std(winnings_arr, axis=0)
     
     upper_band, lower_band = get_bollinger_bands(np.array(median), np.array(stds))
 
     plt.plot(median, label='Median')
-    plt.plot(mean, label='Mean', linestyle='--')
     plt.plot(upper_band, label='Upper Band')
     plt.plot(lower_band, label='Lower Band')
-    plt.title("Median Winnings per Episode with Bollinger Bands using 1 STDEV and Bankroll Limit")
+    plt.title("Median Winnings per Episode with Bollinger & Bankroll Limit")
     plt.xlabel("Spin Number")
     plt.ylabel("Median Winnings")
     plt.xlim(0, 300)
     plt.ylim(-256, 100)
     plt.grid(True)
-    plt.show()
+    plt.legend()
+    save_plot("Figure-5")
 
 
 
