@@ -1,0 +1,38 @@
+This holds the data analytics used
+
+
+--- generate_figure_2 Output ---
+
+Max value of Upper Band: 8064.53
+Min value of Lower Band: -8506.69
+
+
+--- Simulation Results for Experiment 1 ---
+
+| Total Episodes Simulated      | 1000                    |
+| Episodes with Winnings >= $80 | 1000                    |
+| Episodes with Winnings = $80  | 1000                    |
+| Probability of Winnings >= $80| 1.0000                  |
+| Probability of Winnings = $80 | 1.0000                  |
+
+--- Simulation Results for Experiment 2 ---
+
+| Total Episodes Simulated      | 1000                    |
+| Episodes with Winnings >= $80 | 642                     |
+| Episodes with Winnings = $80  | 642                     |
+| Probability of Winnings >= $80| 0.6420                  |
+| Probability of Winnings = $80 | 0.6420                  |
+
+Max of upper band: 121.02883372977143
+Min of lower band: -201.1783883269598
+
+
+--- Expected Value Calculation Table ---
+
+Outcome: -256, Count: 343, Probability: 0.3430
+Outcome: -43, Count: 1, Probability: 0.0010
+Outcome: 33, Count: 1, Probability: 0.0010
+Outcome: 80, Count: 655, Probability: 0.6550
+
+--- Expected Value Analysis for Experiment 2 ---
+Expected Value of Winnings: $-35.42

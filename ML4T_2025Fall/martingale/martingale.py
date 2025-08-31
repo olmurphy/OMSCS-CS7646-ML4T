@@ -28,7 +28,23 @@ GT ID: 904015662
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import numpy as np  	
 import matplotlib.pyplot as plt
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import sys
+
+OUT_FILE = "p1_results.txt"
+with open(OUT_FILE, 'w') as f:
+    f.write("This holds the data analytics used\n\n")		
+
+# Redirect stdout to append to the analysis file
+class MyFile(object):
+    def __init__(self, filename):
+        self.filename = filename
+    def write(self, s):
+        with open(self.filename, 'a') as f:
+            f.write(s)
+    def flush(self):
+        pass
+
+sys.stdout = MyFile(OUT_FILE)  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -137,6 +153,26 @@ def run_episode(win_prob):
             winnings.append(episode_winnings)
     return winnings
 
+def calculate_expected_value(winnings, num_episodes):
+    map = {}
+    for outcome in winnings[:, -1]:
+        if outcome in map:
+            map[outcome] += 1
+        else:
+            map[outcome] = 1
+
+    expected_value = 0
+
+    sorted_outcomes = sorted(map.keys())
+    print("\n--- Expected Value Calculation Table ---\n")
+    for key in sorted_outcomes:
+        count = map[key]
+        prob = count / num_episodes
+        expected_value += key * prob
+        print(f"Outcome: {key}, Count: {count}, Probability: {prob:.4f}")
+
+    return expected_value
+    
 def generate_figure_1(win_prob):
     """Create Figure 1."""
     num_episodes = 10
@@ -175,19 +211,20 @@ def generate_figure_2(win_prob):
 
     upper_band, lower_band = get_bollinger_bands(np.array(means), np.array(stds))
 
+    print("\n--- generate_figure_2 Output ---\n")
+    print(f"Max value of Upper Band: {upper_band.max():.2f}")
+    print(f"Min value of Lower Band: {lower_band.min():.2f}\n")
+
     prob_greater_than_80 = greater_than_80 / num_episodes
     prob_equal_80 = equal_80 / num_episodes
 
     # Print the results in a format suitable for a table
-    print("--------------------------------------------------")
-    print("Simulation Results for Experiment 1")
-    print("--------------------------------------------------")
+    print("\n--- Simulation Results for Experiment 1 ---\n")
     print(f"| Total Episodes Simulated      | {num_episodes: <23} |")
     print(f"| Episodes with Winnings >= $80 | {greater_than_80: <23} |")
     print(f"| Episodes with Winnings = $80  | {equal_80: <23} |")
     print(f"| Probability of Winnings >= $80| {prob_greater_than_80: <23.4f} |")
     print(f"| Probability of Winnings = $80 | {prob_equal_80: <23.4f} |")
-    print("--------------------------------------------------")
 
     plt.plot(means, label='Mean')
     plt.plot(upper_band, label='Upper Band')
@@ -227,14 +264,38 @@ def generate_figure_3(win_prob):
 def generate_figure_4(win_prob):
 
     winning_data = []
+    equal_80 = 0
+    greater_than_80 = 0
+    num_episodes = 1000
+
     for _ in range(1000):
         winning_data.append(run_episode_with_bankroll(win_prob))
+
+        if winning_data[-1][-1] >= 80:
+            greater_than_80 += 1
+        
+        if winning_data[-1][-1] == 80:
+            equal_80 += 1
     
     winnings_arr = np.array(winning_data)
     means = np.mean(winnings_arr, axis=0)
     stds = np.std(winnings_arr, axis=0)
 
     upper_band, lower_band = get_bollinger_bands(np.array(means), np.array(stds))
+
+    prob_greater_than_80 = greater_than_80 / num_episodes
+    prob_equal_80 = equal_80 / num_episodes
+
+    # Print the results in a format suitable for a table
+    print("\n--- Simulation Results for Experiment 2 ---\n")
+    print(f"| Total Episodes Simulated      | {num_episodes: <23} |")
+    print(f"| Episodes with Winnings >= $80 | {greater_than_80: <23} |")
+    print(f"| Episodes with Winnings = $80  | {equal_80: <23} |")
+    print(f"| Probability of Winnings >= $80| {prob_greater_than_80: <23.4f} |")
+    print(f"| Probability of Winnings = $80 | {prob_equal_80: <23.4f} |")
+
+    print(f"\nMax of upper band: {upper_band.max()}")
+    print(f"Min of lower band: {lower_band.min()}\n")
 
     plt.plot(means, label='Mean')
     plt.plot(upper_band, label='Upper Band')
@@ -256,7 +317,11 @@ def generate_figure_5(win_prob):
     winnings_arr = np.array(winning_data)
     median = np.median(winnings_arr, axis=0)
     stds = np.std(winnings_arr, axis=0)
-    
+
+    expected_value = calculate_expected_value(winnings_arr, 1000)
+    print("\n--- Expected Value Analysis for Experiment 2 ---")
+    print(f"Expected Value of Winnings: ${expected_value:.2f}")
+
     upper_band, lower_band = get_bollinger_bands(np.array(median), np.array(stds))
 
     plt.plot(median, label='Median')
