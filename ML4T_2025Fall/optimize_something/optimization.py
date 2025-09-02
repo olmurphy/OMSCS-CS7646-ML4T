@@ -34,7 +34,10 @@ import numpy as np
 import matplotlib.pyplot as plt  		  	   		 	 	 		  		  		    	 		 		   		 		  
 import pandas as pd  		  	   		 	 	 		  		  		    	 		 		   		 		  
 from util import get_data, plot_data
-import scipy.optimize as spo  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import scipy.optimize as spo
+
+# def get_stats():
+
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 # This is the function that will be tested by the autograder  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -77,30 +80,36 @@ def optimize_portfolio(
     
 
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # find the allocations for the optimal portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # note that the values here ARE NOT meant to be correct for a test case  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    allocs = np.asarray(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        [0.1, 0.1, 0.3, 0.3, 0.1, 0.1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    )  # add code here to find the allocations  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    cr, adr, sddr, sr = [  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        0.25,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        0.001,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        0.0005,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        2.1,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    ]  # add code here to compute stats  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    # use equal allocation as starting point	  	
+    allocs = np.array([1.0 / len(syms)] * len(syms))  
+
+    # defined the bounds, allocation is between 1.0 and lower limit is 0.0
+    bounds = tuple([(0.0, 1.) ] * len(syms)) 		 
+    # get_stats()  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Get daily portfolio value  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    port_val = prices_SPY  # add code here to compute daily portfolio values
-    prices_normalized = prices_all / prices_all.iloc[0]
+    port_val = prices  # add code here to compute daily portfolio values
+    prices_normalized = prices / prices.iloc[0]
+    print("\n--- Prices Normalized ---")
+    print(prices_normalized)
+    print("\n--- Allocations ---")
+    print(allocs)
     allocated_prices = prices_normalized * allocs
     pos_vals = allocated_prices * prices_all
     port_val = pos_vals.sum(axis=1)
+    print("--- Portfolio Value ---")
     print(port_val)
     daily_rets = port_val[1:]
+    daily_rets_percent = daily_rets / port_val[:-1].values - 1
+    print("\n--- Daily Returns (percent) ---")
+    print(daily_rets_percent)
+    print("\n--- Daily Returns ---")
     print(daily_rets)  	
     cum_ret = (port_val[-1] / port_val[0]) - 1
     avg_daily_ret = daily_rets.mean()
-    std_daily_ret = daily_rets.std()   		 	 	 		  		  		    	 		 		   		 		  
+    std_daily_ret = daily_rets.std()   		
+
+    sr = 0 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -111,9 +120,7 @@ def optimize_portfolio(
         pass  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     return allocs, cum_ret, avg_daily_ret, std_daily_ret, sr
-
-def f(x):
-    return -1  		  	   		 	 	 		  		  		    	 		 		   		 		  
+		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 def test_code():  		  	   		 	 	 		  		  		    	 		 		   		 		  
