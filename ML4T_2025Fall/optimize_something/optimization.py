@@ -70,15 +70,17 @@ def optimize_portfolio(
     # Read in adjusted closing prices for given symbols, date range  		  	   		 	 	 		  		  		    	 		 		   		 		  
     dates = pd.date_range(sd, ed)  		  	   		 	 	 		  		  		    	 		 		   		 		  
     prices_all = get_data(syms, dates)  # automatically adds SPY
-    print(prices_all / prices_all.iloc[0])
     
     prices = prices_all[syms]  # only portfolio symbols  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    prices_SPY = prices_all["SPY"]  # only SPY, for comparison later  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    prices_SPY = prices_all["SPY"]  # only SPY, for comparison later  
+
+    
+
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # find the allocations for the optimal portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # note that the values here ARE NOT meant to be correct for a test case  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocs = np.asarray(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        [0.2, 0.2, 0.3, 0.3]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        [0.1, 0.1, 0.3, 0.3, 0.1, 0.1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
     )  # add code here to find the allocations  		  	   		 	 	 		  		  		    	 		 		   		 		  
     cr, adr, sddr, sr = [  		  	   		 	 	 		  		  		    	 		 		   		 		  
         0.25,  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -88,7 +90,17 @@ def optimize_portfolio(
     ]  # add code here to compute stats  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Get daily portfolio value  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    port_val = prices_SPY  # add code here to compute daily portfolio values  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    port_val = prices_SPY  # add code here to compute daily portfolio values
+    prices_normalized = prices_all / prices_all.iloc[0]
+    allocated_prices = prices_normalized * allocs
+    pos_vals = allocated_prices * prices_all
+    port_val = pos_vals.sum(axis=1)
+    print(port_val)
+    daily_rets = port_val[1:]
+    print(daily_rets)  	
+    cum_ret = (port_val[-1] / port_val[0]) - 1
+    avg_daily_ret = daily_rets.mean()
+    std_daily_ret = daily_rets.std()   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -98,7 +110,7 @@ def optimize_portfolio(
         )  		  	   		 	 	 		  		  		    	 		 		   		 		  
         pass  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return allocs, cr, adr, sddr, sr
+    return allocs, cum_ret, avg_daily_ret, std_daily_ret, sr
 
 def f(x):
     return -1  		  	   		 	 	 		  		  		    	 		 		   		 		  
