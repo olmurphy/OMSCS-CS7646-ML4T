@@ -36,10 +36,45 @@ import pandas as pd
 from util import get_data, plot_data
 import scipy.optimize as spo
 
-# def get_stats():
+def get_stats(allocs, prices):
+    # normalize prices
+    prices_normalized = prices / prices.iloc[0]
+    # print("\n--- Prices Normalized ---\n")
+    # print(prices_normalized)
 
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    # allocate
+    allocated_prices = prices_normalized * allocs
+    # print("\n--- Allocated Prices ---\n")
+    # print(allocated_prices)
+
+    pos_vals = allocated_prices * prices
+    # print("\n--- Position Values ---\n")
+    # print(pos_vals)
+
+    port_val = pos_vals.sum(axis=1)
+    # print("\n--- Portfolio Value ---\n")
+    # print(port_val)
+
+    daily_rets = (port_val / port_val.shift(1)) - 1
+    daily_rets = daily_rets[1:]
+    # print("\n--- Daily Returns ---\n")
+    # print(daily_rets)
+
+    cum_ret = (port_val[-1] / port_val[0]) - 1
+
+    avg_daily_ret = daily_rets.mean()
+    std_daily_ret = daily_rets.std()
+
+    # computing annualized Sharpe ratio, assuming 252 trading days
+    # with a risk-free rate of 0%
+    sr = np.sqrt(252) * (avg_daily_ret / std_daily_ret)
+
+    return cum_ret, avg_daily_ret, std_daily_ret, sr
+
+def neg_sharpe(allocs, prices):
+    cr, adr, sddr, sr = get_stats(allocs, prices)
+    return -sr
+  		  		    	 		 		   		 		  
 # This is the function that will be tested by the autograder  		  	   		 	 	 		  		  		    	 		 		   		 		  
 # The student must update this code to properly implement the functionality  		  	   		 	 	 		  		  		    	 		 		   		 		  
 def optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -84,32 +119,26 @@ def optimize_portfolio(
     allocs = np.array([1.0 / len(syms)] * len(syms))  
 
     # defined the bounds, allocation is between 1.0 and lower limit is 0.0
-    bounds = tuple([(0.0, 1.) ] * len(syms)) 		 
-    # get_stats()  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # Get daily portfolio value  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    port_val = prices  # add code here to compute daily portfolio values
-    prices_normalized = prices / prices.iloc[0]
-    print("\n--- Prices Normalized ---")
-    print(prices_normalized)
-    print("\n--- Allocations ---")
-    print(allocs)
-    allocated_prices = prices_normalized * allocs
-    pos_vals = allocated_prices * prices_all
-    port_val = pos_vals.sum(axis=1)
-    print("--- Portfolio Value ---")
-    print(port_val)
-    daily_rets = port_val[1:]
-    daily_rets_percent = daily_rets / port_val[:-1].values - 1
-    print("\n--- Daily Returns (percent) ---")
-    print(daily_rets_percent)
-    print("\n--- Daily Returns ---")
-    print(daily_rets)  	
-    cum_ret = (port_val[-1] / port_val[0]) - 1
-    avg_daily_ret = daily_rets.mean()
-    std_daily_ret = daily_rets.std()   		
+    bounds = tuple([(0.0, 1.) ] * len(syms)) 
 
-    sr = 0 	 	 		  		  		    	 		 		   		 		  
+    # constraint, the sum of allocations must be 1.0
+    constraints = ({ "type": "eq", "fun": lambda x: 1.0 - np.sum(x) })		 
+    res = spo.minimize(
+        neg_sharpe,
+        allocs,
+        args=(prices,),
+        method="SLSQP",
+        bounds=bounds,
+        constraints=constraints,
+        options={"disp": True},
+    )  
+    print("----- Optimization Result -----")
+    print(res)	
+    allocs = res.x
+    print("--- Sum of allocations ---")
+    print(np.sum(allocs))	  	   		 	 	 		  		  		    	 		 		   		 		  
+  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    cr, adr, sddr, sr = get_stats(allocs, prices)
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 		  		  		    	 		 		   		 		  
     if gen_plot:  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -119,9 +148,7 @@ def optimize_portfolio(
         )  		  	   		 	 	 		  		  		    	 		 		   		 		  
         pass  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return allocs, cum_ret, avg_daily_ret, std_daily_ret, sr
-		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return allocs, cr, adr, sddr, sr	  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 def test_code():  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -130,7 +157,7 @@ def test_code():
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
     end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    symbols = ["GOOG", "GLD", "XOM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Assess the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
