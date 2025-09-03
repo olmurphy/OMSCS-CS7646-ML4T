@@ -157,7 +157,7 @@ def test_code():
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
     end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    symbols = ["GOOG", "GLD", "XOM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Assess the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
