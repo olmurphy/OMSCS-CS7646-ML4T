@@ -21,9 +21,9 @@ GT honor code violation.
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 -----do not edit anything above this line---  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT User ID: tb34 (replace with your User ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+Student Name: Owen Li Murphy  	   		 	 	 		  		  		    	 		 		   		 		  
+GT User ID: omurphy8		  	   		 	 	 		  		  		    	 		 		   		 		  
+GT ID: 904015662  		  	   		 	 	 		  		  		    	 		 		   		 		  
 """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -39,40 +39,30 @@ import scipy.optimize as spo
 def get_stats(allocs, prices):
     # normalize prices
     prices_normalized = prices / prices.iloc[0]
-    # print("\n--- Prices Normalized ---\n")
-    # print(prices_normalized)
 
     # allocate
     allocated_prices = prices_normalized * allocs
-    # print("\n--- Allocated Prices ---\n")
-    # print(allocated_prices)
 
-    pos_vals = allocated_prices * prices
-    # print("\n--- Position Values ---\n")
-    # print(pos_vals)
-
-    port_val = pos_vals.sum(axis=1)
-    # print("\n--- Portfolio Value ---\n")
-    # print(port_val)
+    port_val = allocated_prices.sum(axis=1)
 
     daily_rets = (port_val / port_val.shift(1)) - 1
     daily_rets = daily_rets[1:]
-    # print("\n--- Daily Returns ---\n")
-    # print(daily_rets)
 
     cum_ret = (port_val[-1] / port_val[0]) - 1
 
     avg_daily_ret = daily_rets.mean()
     std_daily_ret = daily_rets.std()
 
+    daily_risk_free_rate = 0.0
+
     # computing annualized Sharpe ratio, assuming 252 trading days
     # with a risk-free rate of 0%
-    sr = np.sqrt(252) * (avg_daily_ret / std_daily_ret)
+    sr = np.sqrt(252) * ((avg_daily_ret - daily_risk_free_rate) / std_daily_ret)
 
     return cum_ret, avg_daily_ret, std_daily_ret, sr
 
 def neg_sharpe(allocs, prices):
-    cr, adr, sddr, sr = get_stats(allocs, prices)
+    _, _, _, sr = get_stats(allocs, prices)
     return -sr
   		  		    	 		 		   		 		  
 # This is the function that will be tested by the autograder  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -139,14 +129,25 @@ def optimize_portfolio(
     print(np.sum(allocs))	  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     cr, adr, sddr, sr = get_stats(allocs, prices)
+    norm_prices = prices / prices.iloc[0]
+    alloc_prices = norm_prices * allocs
+    port_val = alloc_prices.sum(axis=1)
+
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Compare daily portfolio value with SPY using a normalized plot  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    if gen_plot:  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        # add code to plot here  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        df_temp = pd.concat(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-            [port_val, prices_SPY], keys=["Portfolio", "SPY"], axis=1  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        )  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        pass  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    if gen_plot:
+        normed_port_val = port_val / port_val.iloc[0]  
+        normed_SPY = prices_SPY / prices_SPY.iloc[0]		  	   		 	 	 		  		  		    	 		 		   		 		  
+        # add code to plot her
+        df_temp = pd.concat([normed_port_val, normed_SPY], keys=["Portfolio", "SPY"], axis=1)
+
+        ax = df_temp.plot(title="Daily Portfolio Value vs. SPY", fontsize=12)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Normalized Price")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig("images/" + "Figure1" + ".png", format="png")
+        plt.close()
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     return allocs, cr, adr, sddr, sr	  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -161,7 +162,7 @@ def test_code():
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Assess the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        sd=start_date, ed=end_date, syms=symbols, gen_plot=False  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        sd=start_date, ed=end_date, syms=symbols, gen_plot=True  		  	   		 	 	 		  		  		    	 		 		   		 		  
     )  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Print statistics  		  	   		 	 	 		  		  		    	 		 		   		 		  
