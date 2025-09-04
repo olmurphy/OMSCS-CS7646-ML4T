@@ -36,6 +36,28 @@ import pandas as pd
 from util import get_data, plot_data
 import scipy.optimize as spo
 
+def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return "omurphy8"
+
+def study_group():
+    """
+    Returns
+        A comma separated string of GT_Name of each member of your study group
+        # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+    """
+    return "omurphy8"
+
+def gtid():  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :return: The GT ID of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :rtype: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return 904015662
+
 def get_stats(allocs, prices):
     # normalize prices
     prices_normalized = prices / prices.iloc[0]
@@ -156,9 +178,9 @@ def test_code():
     This function WILL NOT be called by the auto grader.  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-    start_date = dt.datetime(2009, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    end_date = dt.datetime(2010, 1, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    symbols = ["GOOG", "AAPL", "GLD", "XOM", "IBM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    start_date = dt.datetime(2008, 6, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    end_date = dt.datetime(2009, 6, 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    symbols = ["IBM", "X", "GLD", "JPM"]  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Assess the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
