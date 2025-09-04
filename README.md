@@ -18,14 +18,19 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+[![Open Issues](https://img.shields.io/github/issues-raw/olmurphy/OMSCS-CS7646-ML4T?state=open&style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T/issues)
+[![Closed Issues](https://img.shields.io/github/issues-closed-raw/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T/issues?q=is%3Aclosed)
+[![Commit Activity](https://img.shields.io/github/commit-activity/y/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T/graphs/commit-activity)
+[![Repo Size](https://img.shields.io/github/repo-size/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T)
+[![Top Language](https://img.shields.io/github/languages/top/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T/search?l=YOUR_TOP_LANGUAGE)
+[![Last Commit](https://img.shields.io/github/last-commit/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge)](https://github.com/olmurphy/OMSCS-CS7646-ML4T/main)
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![Unlicense License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/owenmurphy2022/)
+![Created At](https://img.shields.io/github/created-at/olmurphy/OMSCS-CS7646-ML4T?style=for-the-badge
+)
 
 <!-- PROJECT LOGO -->
 <br />
