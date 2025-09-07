@@ -83,7 +83,7 @@ def get_stats(allocs, prices):
 
     return cum_ret, avg_daily_ret, std_daily_ret, sr
 
-def neg_sharpe(allocs, prices):
+def neg_sharpe_ratio(allocs, prices):
     _, _, _, sr = get_stats(allocs, prices)
     return -sr
   		  		    	 		 		   		 		  
@@ -136,7 +136,7 @@ def optimize_portfolio(
     # constraint, the sum of allocations must be 1.0
     constraints = ({ "type": "eq", "fun": lambda x: 1.0 - np.sum(x) })		 
     res = spo.minimize(
-        neg_sharpe,
+        neg_sharpe_ratio,
         allocs,
         args=(prices,),
         method="SLSQP",
