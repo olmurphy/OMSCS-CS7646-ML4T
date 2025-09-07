@@ -148,7 +148,7 @@ def optimize_portfolio(
 
     # constraint, the sum of allocations must be 1.0
     constraints = ({ "type": "eq", "fun": lambda x: 1.0 - np.sum(x) })		 
-    spo.minimize(
+    res = spo.minimize(
         neg_sharpe_ratio,
         allocs,
         args=(prices,),
@@ -156,8 +156,10 @@ def optimize_portfolio(
         bounds=bounds,
         constraints=constraints,
         options={"disp": True},
-    )  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    )
+
+    allocs = res.x
+
     cr, adr, sddr, sr = get_stats(allocs, prices)
     norm_prices = prices / prices.iloc[0]
     alloc_prices = norm_prices * allocs
@@ -193,7 +195,7 @@ def test_code():
     # Assess the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sd=start_date, ed=end_date, syms=symbols, gen_plot=True  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    )  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    )
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # This code WILL NOT be called by the auto grader  		  	   		 	 	 		  		  		    	 		 		   		 		  
