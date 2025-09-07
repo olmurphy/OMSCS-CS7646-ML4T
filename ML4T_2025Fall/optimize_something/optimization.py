@@ -59,31 +59,47 @@ def gtid():
     return 904015662
 
 def get_stats(allocs, prices):
+    """
+    This function computes and returnsthe portfolio statistics like cumulative return, average daily return,
+    stdev of daily return and Sharpe ratio of the given prices in the portfolio
+
+    :param allocs: list of allocations for each stock
+    :param prices: Pandas Dataframe holding data of stock prices
+    """
+
     # normalize prices
     prices_normalized = prices / prices.iloc[0]
 
     # allocate
     allocated_prices = prices_normalized * allocs
 
+    # daily portfolio value
     port_val = allocated_prices.sum(axis=1)
 
+    # daily returns minus the first return
     daily_rets = (port_val / port_val.shift(1)) - 1
     daily_rets = daily_rets[1:]
 
     cum_ret = (port_val[-1] / port_val[0]) - 1
-
     avg_daily_ret = daily_rets.mean()
     std_daily_ret = daily_rets.std()
 
-    daily_risk_free_rate = 0.0
-
     # computing annualized Sharpe ratio, assuming 252 trading days
     # with a risk-free rate of 0%
+    daily_risk_free_rate = 0.0
     sr = np.sqrt(252) * ((avg_daily_ret - daily_risk_free_rate) / std_daily_ret)
 
     return cum_ret, avg_daily_ret, std_daily_ret, sr
 
 def neg_sharpe_ratio(allocs, prices):
+    """
+    This function returns the negative values of the Sharpe Ratio,
+    which is used in the minimizatoin function to find the optimal allocations
+    that maximize the Sharpe Ratio
+    
+    :param allocs: list of allocations for each stock
+    :param prices: Pandas Dataframe holding data of stock prices
+    """
     _, _, _, sr = get_stats(allocs, prices)
     return -sr
   		  		    	 		 		   		 		  
@@ -124,9 +140,6 @@ def optimize_portfolio(
     prices = prices_all[syms]  # only portfolio symbols  		  	   		 	 	 		  		  		    	 		 		   		 		  
     prices_SPY = prices_all["SPY"]  # only SPY, for comparison later  
 
-    
-
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # use equal allocation as starting point	  	
     allocs = np.array([1.0 / len(syms)] * len(syms))  
 
@@ -135,7 +148,7 @@ def optimize_portfolio(
 
     # constraint, the sum of allocations must be 1.0
     constraints = ({ "type": "eq", "fun": lambda x: 1.0 - np.sum(x) })		 
-    res = spo.minimize(
+    spo.minimize(
         neg_sharpe_ratio,
         allocs,
         args=(prices,),
@@ -144,11 +157,6 @@ def optimize_portfolio(
         constraints=constraints,
         options={"disp": True},
     )  
-    print("----- Optimization Result -----")
-    print(res)	
-    allocs = res.x
-    print("--- Sum of allocations ---")
-    print(np.sum(allocs))	  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     cr, adr, sddr, sr = get_stats(allocs, prices)
     norm_prices = prices / prices.iloc[0]
@@ -186,17 +194,6 @@ def test_code():
     allocations, cr, adr, sddr, sr = optimize_portfolio(  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sd=start_date, ed=end_date, syms=symbols, gen_plot=True  		  	   		 	 	 		  		  		    	 		 		   		 		  
     )  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # Print statistics  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Start Date: {start_date}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"End Date: {end_date}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Symbols: {symbols}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Allocations:{allocations}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Sharpe Ratio: {sr}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Volatility (stdev of daily returns): {sddr}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Average Daily Return: {adr}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"Cumulative Return: {cr}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # This code WILL NOT be called by the auto grader  		  	   		 	 	 		  		  		    	 		 		   		 		  
