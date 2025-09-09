@@ -1,5 +1,12 @@
 import numpy as np
 
+class TreeNode:
+    def __init__(self, split_val, left=None, right = None, feature_idx = -1):
+        self.feature_idx = feature_idx
+        self.split_val = split_val
+        self.left = left
+        self.right = right
+
 class DTLearner(object):
     """
     This is a Decision Tree Learner.

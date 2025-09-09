@@ -1,5 +1,13 @@
 import numpy as np
 
+
+class TreeNode:
+    def __init__(self, split_val, left=None, right = None, feature_idx = -1):
+        self.feature_idx = feature_idx
+        self.split_val = split_val
+        self.left = left
+        self.right = right
+
 class RTLearner():
     """
     This is a Random Tree Learner (RTLearner)
@@ -21,7 +29,7 @@ class RTLearner():
         :param verbose: If “verbose” is True, your code can print out information for debugging.
             If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.
         :type verbose: bool
-        """
+        """`
         self.leaf_size = leaf_size
         self.verbose = verbose
         self.tree = None  # Initialize tree structure
