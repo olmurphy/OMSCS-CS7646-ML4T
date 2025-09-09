@@ -54,6 +54,61 @@ class RTLearner():
         data = np.hstack((data_x, data_y.reshape(-1, 1)))
         self.tree = self._build_tree(data)
 
+    def _build_tree(self, data):
+        """
+        Recursively build the decision tree.
+
+        :param data: Combined feature and target values
+        :type data: numpy.ndarray
+        :return: The decision tree represented as a nested list
+        :rtype: list
+        """
+        # base case 1: # samples <= leaf_size
+        if data.shape[0] <= self.leaf_size:
+            return np.array([[-1, data[0, -1], np.nan, np.nan]])
+        
+        # base case 2: all Y (target) values are the same
+        if np.all(data[:, -1] == data[0, -1]):
+            return np.array([[-1, data[0, -1], np.nan, np.nan]])
+        
+        num_features = data.shape[1] - 1
+        best_feature = -1
+        max_abs_corr = -1
+
+        for i in range(num_features):
+            feature = data[:, i]
+            target = data[:, -1]
+
+            # avoid divizion by zero if feature no variance    
+            if np.std(feature) == 0:
+                continue
+            corr = np.corrcoef(feature, target)[0, 1]
+
+            if abs(corr) > max_abs_corr:
+                max_abs_corr = abs(corr)
+                best_feature = i
+
+        # no correlation found (all features constant), return leaf w/ mean
+        if best_feature == -1:
+            return np.array([[-1, np.mean(data[:, -1]), np.nan, np.nan]])
+        
+        split_val = np.median(data[:, best_feature])
+
+        # case where all avlues same, leading to infinite recursion
+        left_data = data[data[:, best_feature] <= split_val]
+        right_data = data[data[:, best_feature] > split_val]
+
+        # split creates two non-distinct subsets, create leaft to prevent infinite recursion
+        if left_data.shape[0] == 0 or right_data.shape[0] == 0:
+            return np.array([[-1, np.mean(data[:, -1]), np.nan, np.nan]])
+
+        left_tree = self._build_tree(left_data)
+        right_tree = self._build_tree(right_data)
+        
+        root = np.array([[best_feature, split_val, 1, left_tree.shape[0] + 1]])
+
+        return np.vstack((root, left_tree, right_tree))
+
     def query(self, points):
         """
         Estimate set of test points given the model we built.
@@ -63,58 +118,33 @@ class RTLearner():
         :return: The predicted result of input data according to the trained model
         :rtype: numpy.ndarray
         """
-        
-        # TODO: Placeholder implementation
-        if self.tree is None:
-            raise ValueError("The model has not been trained yet. Please call add_evidence first.")
-        
-        # For demonstration purposes, return zeros
-        return np.zeros(points.shape[0])
 
-# class RTLearner.RTLearner(leaf_size=1, verbose=False)
-
-#     This is a Random Tree Learner (RTLearner). You will need to properly implement this class as necessary.
-
-#     Parameters
-#         leaf_size (int)  - Is the number of samples required for a potential split
-#         verbose (bool)   - If “verbose” is True, your code can print out information for debugging.
-#                            If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.
-
-#     add_evidence(data_x, data_y)
-
-#         Add training data to learner
-
-#         Parameters
-#             data_x (numpy.ndarray) – A set of feature values used to train the learner
-#             data_y (numpy.ndarray) – The value we are attempting to predict given the X data
-
-
-#     author()
-
-#         Returns
-#             The GT username of the student
-
-#         Return type
-#             str
-
-#      study_group()
+        predictions = np.array([self._query_point(point, self.tree) for point in points])
+        return predictions
     
-#         Returns
-#             A comma separated string of GT_Name of each member of your study group
-#             # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+    def _query_point(self, point, tree):
+        """
+        Recursively query a single point through the decision tree.
 
-#         Return type
-#             str
- 
-#     query(points)
-
-#         Estimate a set of test points given the model we built.
-
-#         Parameters
-#             points (numpy.ndarray) – A numpy array with each row corresponding to a specific query.
-
-#         Returns
-#             The predicted result of the input data according to the trained model
-
-#         Return type
-#             numpy.ndarray
+        :param point: A single feature vector
+        :type point: numpy.ndarray
+        :param tree: The decision tree
+        :type tree: numpy.ndarray
+        :return: The predicted target value for the input point
+        :rtype: float
+        """
+        node = tree[0]
+        
+        # If leaf node, return the prediction
+        if node[0] == -1:
+            return node[1]
+        
+        feature_index = int(node[0])
+        split_value = node[1]
+        
+        if point[feature_index] <= split_value:
+            left_subtree_idx = int(node[2])
+            return self._query_point(point, tree[left_subtree_idx:])
+        else:
+            right_subtree_idx = int(node[3])
+            return self._query_point(point, tree[right_subtree_idx:])
