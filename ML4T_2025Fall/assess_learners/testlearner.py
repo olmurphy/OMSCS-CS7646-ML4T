@@ -26,34 +26,43 @@ GT honor code violation.
 import math  		  	   		 	 	 		  		  		    	 		 		   		 		  
 import sys  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import numpy as np  		
+import pandas as pd  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-import LinRegLearner as lrl  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import LinRegLearner as lrl
+import DTLearner as dtl  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		 	 	 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sys.exit(1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    inf = open(sys.argv[1])  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    data = np.array(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        [list(map(float, s.strip().split(","))) for s in inf.readlines()]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    )  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    inf = open(sys.argv[1]) 
+    df = pd.read_csv(sys.argv[1])
+    
+    # selecting all rows, and all columns except the 1st column
+    df = df.iloc[:, 1:]
+    X = df.iloc[:, :-1]  # grab features (all columns except last)
+    Y = df.iloc[:, -1]
+
+    features = X.to_numpy()
+    target = Y.to_numpy()
+
     # compute how much of the data is training and testing  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_rows = int(0.6 * data.shape[0])  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_rows = data.shape[0] - train_rows  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_rows = int(0.6 * features.shape[0])
+
     # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_x = data[:train_rows, 0:-1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_y = data[:train_rows, -1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_x = data[train_rows:, 0:-1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_y = data[train_rows:, -1]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_x = features[:train_rows]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_y = target[:train_rows]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_x = features[train_rows:]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_y = target[train_rows:]  
+
     print(f"{test_x.shape}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"{test_y.shape}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    print(f"{test_y.shape}")
+
     # create a learner and train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    # learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  
+    learner = dtl.DTLearner(leaf_size=1, verbose=True)  # create a DTLearner	
+     		  		    	 		 		   		 		  
     learner.add_evidence(train_x, train_y)  # train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print(learner.author())  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
