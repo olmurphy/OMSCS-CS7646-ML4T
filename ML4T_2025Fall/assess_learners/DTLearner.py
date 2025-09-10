@@ -1,12 +1,5 @@
 import numpy as np
 
-class TreeNode:
-    def __init__(self, split_val, left=None, right = None, feature_idx = -1):
-        self.feature_idx = feature_idx
-        self.split_val = split_val
-        self.left = left
-        self.right = right
-
 class DTLearner(object):
     """
     This is a Decision Tree Learner.
@@ -129,10 +122,10 @@ class DTLearner(object):
         :rtype: numpy.ndarray
         """
 
-        predictions = np.array([self._query_point(point, self.tree) for point in points])
+        predictions = np.array([self._query_point(point, 0) for point in points])
         return predictions
     
-    def _query_point(self, point, tree):
+    def _query_point(self, point, node_idx):
         """
         Recursively query a single point through the decision tree.
 
@@ -143,18 +136,18 @@ class DTLearner(object):
         :return: The predicted target value for the input point
         :rtype: float
         """
-        node = tree[0]
+        node = self.tree[node_idx]
         
         # If leaf node, return the prediction
         if node[0] == -1:
             return node[1]
         
-        feature_index = int(node[0])
+        feature_idx = int(node[0])
         split_value = node[1]
         
-        if point[feature_index] <= split_value:
-            left_subtree_idx = int(node[2])
-            return self._query_point(point, tree[left_subtree_idx:])
+        if point[feature_idx] <= split_value:
+            next_node_idx = node_idx + int(node[2])
         else:
-            right_subtree_idx = int(node[3])
-            return self._query_point(point, tree[right_subtree_idx:])
+            next_node_idx = node_idx + int(node[3])
+        
+        return self._query_point(point, next_node_idx)  # Fallback (should not reach here)

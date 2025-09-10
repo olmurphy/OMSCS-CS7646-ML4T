@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 
 class TreeNode:
@@ -29,7 +30,7 @@ class RTLearner():
         :param verbose: If “verbose” is True, your code can print out information for debugging.
             If verbose = False your code should not generate ANY output. When we test your code, verbose will be False.
         :type verbose: bool
-        """`
+        """
         self.leaf_size = leaf_size
         self.verbose = verbose
         self.tree = None  # Initialize tree structure
@@ -80,31 +81,20 @@ class RTLearner():
             return np.array([[-1, data[0, -1], np.nan, np.nan]])
         
         num_features = data.shape[1] - 1
-        best_feature = -1
-        max_abs_corr = -1
 
-        for i in range(num_features):
-            feature = data[:, i]
-            target = data[:, -1]
+        num_features = data.shape[1] - 1
 
-            # avoid divizion by zero if feature no variance    
-            if np.std(feature) == 0:
-                continue
-            corr = np.corrcoef(feature, target)[0, 1]
+        # Randomly select a feature
+        rand_feature = random.randint(0, num_features - 1)
 
-            if abs(corr) > max_abs_corr:
-                max_abs_corr = abs(corr)
-                best_feature = i
-
-        # no correlation found (all features constant), return leaf w/ mean
-        if best_feature == -1:
+        if np.all(data[:, rand_feature] == data[0, rand_feature]):
             return np.array([[-1, np.mean(data[:, -1]), np.nan, np.nan]])
-        
-        split_val = np.median(data[:, best_feature])
+
+        split_val = np.median(data[:, rand_feature])
 
         # case where all avlues same, leading to infinite recursion
-        left_data = data[data[:, best_feature] <= split_val]
-        right_data = data[data[:, best_feature] > split_val]
+        left_data = data[data[:, rand_feature] <= split_val]
+        right_data = data[data[:, rand_feature] > split_val]
 
         # split creates two non-distinct subsets, create leaft to prevent infinite recursion
         if left_data.shape[0] == 0 or right_data.shape[0] == 0:
@@ -113,7 +103,7 @@ class RTLearner():
         left_tree = self._build_tree(left_data)
         right_tree = self._build_tree(right_data)
         
-        root = np.array([[best_feature, split_val, 1, left_tree.shape[0] + 1]])
+        root = np.array([[rand_feature, split_val, 1, left_tree.shape[0] + 1]])
 
         return np.vstack((root, left_tree, right_tree))
 
@@ -127,10 +117,10 @@ class RTLearner():
         :rtype: numpy.ndarray
         """
 
-        predictions = np.array([self._query_point(point, self.tree) for point in points])
+        predictions = np.array([self._query_point(point, 0) for point in points])
         return predictions
     
-    def _query_point(self, point, tree):
+    def _query_point(self, point, node_idx):
         """
         Recursively query a single point through the decision tree.
 
@@ -141,18 +131,18 @@ class RTLearner():
         :return: The predicted target value for the input point
         :rtype: float
         """
-        node = tree[0]
+        node = self.tree[node_idx]
         
         # If leaf node, return the prediction
         if node[0] == -1:
             return node[1]
         
-        feature_index = int(node[0])
+        feature_idx = int(node[0])
         split_value = node[1]
         
-        if point[feature_index] <= split_value:
-            left_subtree_idx = int(node[2])
-            return self._query_point(point, tree[left_subtree_idx:])
+        if point[feature_idx] <= split_value:
+            next_node_idx = node_idx + int(node[2])
         else:
-            right_subtree_idx = int(node[3])
-            return self._query_point(point, tree[right_subtree_idx:])
+            next_node_idx = node_idx + int(node[3])
+        
+        return self._query_point(point, next_node_idx)  # Fallback (should not reach here)

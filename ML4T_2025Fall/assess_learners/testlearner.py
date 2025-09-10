@@ -37,31 +37,31 @@ if __name__ == "__main__":
         print("Usage: python testlearner.py <filename>")  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sys.exit(1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
     inf = open(sys.argv[1]) 
-    df = pd.read_csv(sys.argv[1])
+    data = np.genfromtxt(inf, delimiter=',', skip_header=1)
     
     # selecting all rows, and all columns except the 1st column
-    df = df.iloc[:, 1:]
-    X = df.iloc[:, :-1]  # grab features (all columns except last)
-    Y = df.iloc[:, -1]
+    features = data[:, 1:-1]
+    target = data[:, -1]
 
-    features = X.to_numpy()
-    target = Y.to_numpy()
-
-    # compute how much of the data is training and testing  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    # compute how much of the data is training and testing
     train_rows = int(0.6 * features.shape[0])
+    train_indices = np.random.choice(features.shape[0], size=train_rows, replace=False)
+
+    # this does a left join, return indices not in train_indices
+    test_indices = np.setdiff1d(np.arange(features.shape[0]), train_indices)
 
     # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_x = features[:train_rows]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_y = target[:train_rows]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_x = features[train_rows:]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_y = target[train_rows:]  
+    train_x = features[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_y = target[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_x = features[test_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_y = target[test_indices]  
 
     print(f"{test_x.shape}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print(f"{test_y.shape}")
 
     # create a learner and train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  
-    learner = dtl.DTLearner(leaf_size=1, verbose=True)  # create a DTLearner	
+    learner = dtl.DTLearner(leaf_size=1, verbose=False)  # create a DTLearner	
      		  		    	 		 		   		 		  
     learner.add_evidence(train_x, train_y)  # train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print(learner.author())  		  	   		 	 	 		  		  		    	 		 		   		 		  
