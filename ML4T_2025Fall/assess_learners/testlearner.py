@@ -27,11 +27,52 @@ import math
 import sys  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import numpy as np  		
-import pandas as pd  	   		 	 	 		  		  		    	 		 		   		 		  
+import matplotlib.pyplot as plt	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import LinRegLearner as lrl
-import DTLearner as dtl  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import DTLearner as dtl
+
+def experiment_one(features, target):
+
+    # compute how much of the data is training and testing
+    train_rows = int(0.6 * features.shape[0])
+    train_indices = np.random.choice(features.shape[0], size=train_rows, replace=False)
+    test_indices = np.setdiff1d(np.arange(features.shape[0]), train_indices)
+
+    # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_x = features[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_y = target[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_x = features[test_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_y = target[test_indices] 
+
+    leaf_sizes = range(1, 100)
+    in_sample_rmse = []
+    out_of_sample_rmse = [] 
+
+    for leaf_size in leaf_sizes:
+        learner = dtl.DTLearner(leaf_size=leaf_size, verbose=False)  # create a DTLearner	
+        learner.add_evidence(train_x, train_y)  # train it
+
+        # eval in sample
+        pred_y = learner.query(train_x)
+        rmse_train = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+        in_sample_rmse.append(rmse_train)
+
+        # eval out of sample
+        pred_y = learner.query(test_x)
+        rmse_test = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+        out_of_sample_rmse.append(rmse_test)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(leaf_sizes, in_sample_rmse, label='In-Sample RMSE')
+    plt.plot(leaf_sizes, out_of_sample_rmse, label='Out-of-Sample RMSE')
+    plt.title('DTLearner RMSE vs Leaf Size')
+    plt.xlabel('leaf_size')
+    plt.ylabel('RMSE')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('images/experiment_1.png', format='png')
+
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     if len(sys.argv) != 2:  		  	   		 	 	 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -42,6 +83,8 @@ if __name__ == "__main__":
     # selecting all rows, and all columns except the 1st column
     features = data[:, 1:-1]
     target = data[:, -1]
+
+    experiment_one(features, target)
 
     # compute how much of the data is training and testing
     train_rows = int(0.6 * features.shape[0])
@@ -83,3 +126,4 @@ if __name__ == "__main__":
     print(f"RMSE: {rmse}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
     c = np.corrcoef(pred_y, y=test_y)  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print(f"corr: {c[0,1]}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
+
