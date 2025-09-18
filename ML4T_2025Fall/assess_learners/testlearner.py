@@ -24,13 +24,22 @@ GT honor code violation.
 """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import math  		  	   		 	 	 		  		  		    	 		 		   		 		  
-import sys  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import sys
+import random  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import numpy as np  		
 import matplotlib.pyplot as plt	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import LinRegLearner as lrl
 import DTLearner as dtl
+import BagLearner as bl
+
+def gtid():  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :return: The GT ID of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :rtype: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return 904015662
 
 def experiment_one(features, target):
 
@@ -73,7 +82,81 @@ def experiment_one(features, target):
     plt.grid(True)
     plt.savefig('images/experiment_1.png', format='png')
 
-if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    # TODO: might not need. Create and append table to p3_results.txt
+    with open('p3_results.txt', 'a') as f:
+        f.write("\n\nExperiment 1 Results (DTLearner RMSE vs. Leaf Size)\n")
+        f.write("--------------------------------------------------\n")
+        f.write("{:<12} {:<20} {:<20}\n".format("Leaf Size", "In-Sample RMSE", "Out-of-Sample RMSE"))
+        f.write("{:<12} {:<20} {:<20}\n".format("-----------", "--------------------", "--------------------"))
+        for i in range(len(leaf_sizes)):
+            f.write("{:<12} {:<20.6f} {:<20.6f}\n".format(leaf_sizes[i], in_sample_rmse[i], out_of_sample_rmse[i]))
+
+def experiment_two(features, target):
+    
+    # compute how much of the data is training and testing
+    train_rows = int(0.6 * features.shape[0])
+    train_indices = np.random.choice(features.shape[0], size=train_rows, replace=False)
+    test_indices = np.setdiff1d(np.arange(features.shape[0]), train_indices)
+
+    # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_x = features[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_y = target[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_x = features[test_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_y = target[test_indices] 
+
+    leaf_sizes = range(1, 100)
+    num_bags = 20
+
+    in_sample_rmse_dt = []
+    out_of_sample_rmse_dt = [] 
+    in_sample_rmse_bl = []
+    out_of_sample_rmse_bl = [] 
+
+    for leaf_size in leaf_sizes:
+        # DTLearner
+        dt_learner = dtl.DTLearner(leaf_size=leaf_size, verbose=False)	
+        dt_learner.add_evidence(train_x, train_y)
+
+        # eval in sample
+        pred_y = dt_learner.query(train_x)
+        rmse_train = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+        in_sample_rmse_dt.append(rmse_train)
+
+        # eval out of sample
+        pred_y = dt_learner.query(test_x)
+        rmse_test = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+        out_of_sample_rmse_dt.append(rmse_test)
+
+        learner_bl = bl.BagLearner(learner=dtl.DTLearner, kwargs={'leaf_size': leaf_size}, bags=num_bags, boost=False, verbose=False)
+        learner_bl.add_evidence(train_x, train_y)
+
+        # eval in sample
+        pred_y = learner_bl.query(train_x)
+        rmse_train = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+        in_sample_rmse_bl.append(rmse_train)
+
+        # eval out of sample
+        pred_y = learner_bl.query(test_x)
+        rmse_test = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+        out_of_sample_rmse_bl.append(rmse_test)
+
+    # Plotting
+    plt.figure(figsize=(12, 8))
+    plt.plot(leaf_sizes, in_sample_rmse_dt, label='DTLearner In-Sample RMSE', color='orange', linestyle='--')
+    plt.plot(leaf_sizes, out_of_sample_rmse_dt, label='DTLearner Out-of-Sample RMSE', color='orange')
+    plt.plot(leaf_sizes, in_sample_rmse_bl, label='BagLearner In-Sample RMSE', color='red', linestyle='--')
+    plt.plot(leaf_sizes, out_of_sample_rmse_bl, label='BagLearner Out-of-Sample RMSE', color='red')
+
+    plt.title('DTLearner vs. BagLearner RMSE vs Leaf Size (Bags=20)')
+    plt.xlabel('leaf_size')
+    plt.ylabel('RMSE')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('images/experiment_2.png', format='png')
+
+if __name__ == "__main__":  	
+    random.seed(gtid())
+
     if len(sys.argv) != 2:  		  	   		 	 	 		  		  		    	 		 		   		 		  
         print("Usage: python testlearner.py <filename>")  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sys.exit(1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -85,45 +168,4 @@ if __name__ == "__main__":
     target = data[:, -1]
 
     experiment_one(features, target)
-
-    # compute how much of the data is training and testing
-    train_rows = int(0.6 * features.shape[0])
-    train_indices = np.random.choice(features.shape[0], size=train_rows, replace=False)
-
-    # this does a left join, return indices not in train_indices
-    test_indices = np.setdiff1d(np.arange(features.shape[0]), train_indices)
-
-    # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_x = features[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    train_y = target[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_x = features[test_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    test_y = target[test_indices]  
-
-    print(f"{test_x.shape}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"{test_y.shape}")
-
-    # create a learner and train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner  
-    learner = dtl.DTLearner(leaf_size=1, verbose=False)  # create a DTLearner	
-     		  		    	 		 		   		 		  
-    learner.add_evidence(train_x, train_y)  # train it  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(learner.author())  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # evaluate in sample  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    pred_y = learner.query(train_x)  # get the predictions  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print()  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print("In sample results")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"RMSE: {rmse}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    c = np.corrcoef(pred_y, y=train_y)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"corr: {c[0,1]}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # evaluate out of sample  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    pred_y = learner.query(test_x)  # get the predictions  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print()  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print("Out of sample results")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"RMSE: {rmse}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    c = np.corrcoef(pred_y, y=test_y)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print(f"corr: {c[0,1]}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-
+    experiment_two(features, target)
