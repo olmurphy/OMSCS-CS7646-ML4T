@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 import LinRegLearner as lrl
 import DTLearner as dtl
 import BagLearner as bl
+import RTLearner as rtl
 
 def gtid():  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -154,6 +155,83 @@ def experiment_two(features, target):
     plt.grid(True)
     plt.savefig('images/experiment_2.png', format='png')
 
+def experiment_three(features, target):
+    
+    # compute how much of the data is training and testing
+    train_rows = int(0.6 * features.shape[0])
+    train_indices = np.random.choice(features.shape[0], size=train_rows, replace=False)
+    test_indices = np.setdiff1d(np.arange(features.shape[0]), train_indices)
+
+    # separate out training and testing data  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_x = features[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    train_y = target[train_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_x = features[test_indices]  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    test_y = target[test_indices]
+
+    # range and step value of 5
+    leaf_sizes = range(1, 101, 5)
+
+    dt_in_sample_mape = []
+    dt_out_of_sample_mape = []
+    dt_nodes = []
+
+    rt_in_sample_mape = []
+    rt_out_of_sample_mape = []
+    rt_nodes = []
+
+    for leaf_size in leaf_sizes:
+        # DTLearner
+        dt_learner = dtl.DTLearner(leaf_size=leaf_size, verbose=False)
+        dt_learner.add_evidence(train_x, train_y)
+
+        # calc MAPE & # of node for DTLearner
+        dt_pred_train = dt_learner.query(train_x)
+        dt_mape_train = np.mean(np.abs((train_y - dt_pred_train) / train_y)) * 100
+        dt_in_sample_mape.append(dt_mape_train)
+        dt_nodes.append(dt_learner.tree.shape[0])
+
+        dt_pred_test = dt_learner.query(test_x)
+        dt_mape_test = np.mean(np.abs((test_y - dt_pred_test) / test_y)) * 100
+        dt_out_of_sample_mape.append(dt_mape_test)
+
+        # RTLearner
+        rt_learner = rtl.RTLearner(leaf_size=leaf_size, verbose=False)
+        rt_learner.add_evidence(train_x, train_y)
+        
+        # Calculate MAPE and number of nodes for RTLearner
+        rt_pred_train = rt_learner.query(train_x)
+        rt_mape_train = np.mean(np.abs((train_y - rt_pred_train) / train_y)) * 100
+        rt_in_sample_mape.append(rt_mape_train)
+        rt_nodes.append(rt_learner.tree.shape[0])
+
+        rt_pred_test = rt_learner.query(test_x)
+        rt_mape_test = np.mean(np.abs((test_y - rt_pred_test) / test_y)) * 100
+        rt_out_of_sample_mape.append(rt_mape_test)
+    
+    # Plotting MAPE
+    plt.figure(figsize=(10, 6))
+    plt.plot(leaf_sizes, dt_out_of_sample_mape, label='DTLearner MAPE', color='blue')
+    plt.plot(leaf_sizes, dt_in_sample_mape, label='DTLearner In-Sample MAPE', color='blue', linestyle='--')
+    plt.plot(leaf_sizes, rt_out_of_sample_mape, label='RTLearner MAPE', color='red')
+    plt.plot(leaf_sizes, rt_in_sample_mape, label='RTLearner In-Sample MAPE', color='red', linestyle='--')
+    plt.title('Out-of-Sample MAPE vs. Leaf Size')
+    plt.xlabel('Leaf Size')
+    plt.ylabel('MAPE (%)')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('images/experiment_3_mape.png')
+
+    # Plotting number of nodes
+    plt.figure(figsize=(10, 6))
+    plt.plot(leaf_sizes, dt_nodes, label='DTLearner Nodes', color='blue')
+    plt.plot(leaf_sizes, rt_nodes, label='RTLearner Nodes', color='red')
+    plt.title('Tree Complexity (Nodes) vs. Leaf Size')
+    plt.xlabel('Leaf Size')
+    plt.ylabel('Number of Nodes')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig('images/experiment_3_nodes.png')
+
 if __name__ == "__main__":  	
     random.seed(gtid())
 
@@ -169,3 +247,4 @@ if __name__ == "__main__":
 
     experiment_one(features, target)
     experiment_two(features, target)
+    experiment_three(features, target)

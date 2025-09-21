@@ -69,7 +69,7 @@ class DTLearner(object):
         if data.shape[0] <= self.leaf_size:
             return np.array([[-1, np.mean(data[:, -1]), np.nan, np.nan]])
         
-        # base case 2: all Y (target) values are the same
+        # base case 2: all target values same
         if np.all(data[:, -1] == data[0, -1]):
             return np.array([[-1, np.mean(data[:, -1]), np.nan, np.nan]])
         
