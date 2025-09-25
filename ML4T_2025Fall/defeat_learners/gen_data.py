@@ -75,8 +75,8 @@ def author():
     :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
     :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return "tb34"  # Change this to your user ID  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return "omurphy8"
+
+
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print("they call me Tim.")  		  	   		 	 	 		  		  		    	 		 		   		 		  
