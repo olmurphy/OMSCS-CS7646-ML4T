@@ -77,6 +77,14 @@ def author():
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
     return "omurphy8"
 
+def study_group(self):
+        """
+        Returns
+            A comma separated string of GT_Name of each member of your study group
+            # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+        """
+        return "omurphy8"
+
 
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print("they call me Tim.")  		  	   		 	 	 		  		  		    	 		 		   		 		  
