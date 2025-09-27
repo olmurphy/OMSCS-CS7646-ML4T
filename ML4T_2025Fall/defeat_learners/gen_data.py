@@ -28,7 +28,8 @@ GT ID: 900897987 (replace with your GT ID)
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import math  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import numpy as np  
+import random		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 # this function should return a dataset (X and Y) that will work  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -44,13 +45,25 @@ def best_4_lin_reg(seed=1489683273):
     :return: Returns data that performs significantly better with LinRegLearner than DTLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
     :rtype: numpy.ndarray  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    np.random.seed(seed)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    x = np.zeros((100, 2))  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # Here's is an example of creating a Y from randomly generated  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # X with multiple columns  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # y = x[:,0] + np.sin(x[:,1]) + x[:,2]**2 + x[:,3]**3  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return x, y  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    np.random.seed(seed)
+    random.seed(seed)
+    
+    n_samples = 100
+    n_features = 5
+
+    X = np.random.uniform(-5.0, 5.0, size=(n_samples, n_features))
+
+    # initalize weights and biases
+    weights = np.array([1.5, -0.8, 3.0, 0.2, -4.5])
+    bias = 10.0
+
+    # linear combination of inputs + noise
+    y_lin = X @ weights + bias
+
+    noise = np.random.normal(0, 0.1, size=n_samples)
+    Y = y_lin + noise
+
+    return X, Y	  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 def best_4_dt(seed=1489683273):  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -64,11 +77,24 @@ def best_4_dt(seed=1489683273):
     :return: Returns data that performs significantly better with DTLearner than LinRegLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
     :rtype: numpy.ndarray  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    np.random.seed(seed)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    x = np.zeros((100, 2))  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    y = np.random.random(size=(100,)) * 200 - 100  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return x, y  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    np.random.seed(seed)
+    random.seed(seed)
+
+    n_samples = 100
+    n_features = 5
+
+    X = np.random.uniform(-5.0, 5.0, size=(n_samples, n_features))
+
+    Y = np.zeros(n_samples)
+
+    Y[X[:, 0] < -2.0] = 70.0  
+    Y[X[:, 0] >= -2.0] = -20.0
+
+    # small gaussian noise
+    noise = np.random.normal(0, 0.1, size=n_samples)
+    Y = Y + noise
+
+    return X, Y  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -78,12 +104,12 @@ def author():
     return "omurphy8"
 
 def study_group(self):
-        """
-        Returns
-            A comma separated string of GT_Name of each member of your study group
-            # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
-        """
-        return "omurphy8"
+    """
+    Returns
+        A comma separated string of GT_Name of each member of your study group
+        # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+    """
+    return "omurphy8"
 
 
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
