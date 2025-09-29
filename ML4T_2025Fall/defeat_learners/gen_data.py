@@ -34,17 +34,7 @@ import random
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 # this function should return a dataset (X and Y) that will work  		  	   		 	 	 		  		  		    	 		 		   		 		  
 # better for linear regression than decision trees  		  	   		 	 	 		  		  		    	 		 		   		 		  
-def best_4_lin_reg(seed=1489683273):  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    Returns data that performs significantly better with LinRegLearner than DTLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    The data set should include from 2 to 10 columns in X, and one column in Y.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    The data should contain from 10 (minimum) to 1000 (maximum) rows.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param seed: The random seed for your data generation.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type seed: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: Returns data that performs significantly better with LinRegLearner than DTLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: numpy.ndarray  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+def best_4_lin_reg(seed=1489683273):  		  	   		 	 	 		  		  		    	 		 		   		 		  	 	 	 		  		  		    	 		 		   		 		  
     np.random.seed(seed)
     random.seed(seed)
     
@@ -66,17 +56,7 @@ def best_4_lin_reg(seed=1489683273):
     return X, Y	  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-def best_4_dt(seed=1489683273):  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    Returns data that performs significantly better with DTLearner than LinRegLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    The data set should include from 2 to 10 columns in X, and one column in Y.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    The data should contain from 10 (minimum) to 1000 (maximum) rows.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param seed: The random seed for your data generation.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type seed: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: Returns data that performs significantly better with DTLearner than LinRegLearner.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: numpy.ndarray  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+def best_4_dt(seed=1489683273):  		  	   		 	 	 		  		  		    	 		 		   		 		   		  	   		 	 	 		  		  		    	 		 		   		 		  
     np.random.seed(seed)
     random.seed(seed)
 
@@ -87,6 +67,7 @@ def best_4_dt(seed=1489683273):
 
     Y = np.zeros(n_samples)
 
+    # set up piecewise function, with split at x= -2.0
     Y[X[:, 0] < -2.0] = 70.0  
     Y[X[:, 0] >= -2.0] = -20.0
 
