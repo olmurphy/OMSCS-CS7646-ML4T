@@ -1,0 +1,14 @@
+<pre>--- Summary ---
+Tests passed: 1 out of 2
+
+--- Details ---
+Test #0: failed 
+Test case description: Orders 10, impact and commission
+IncorrectOutput: Test failed on one or more output criteria.
+  Inputs:
+{'orders_file': 'orders-10.csv', 'start_val': 1000000, 'commission': 9.95, 'impact': 0.005}
+  Failures:
+   Incorrect final value: 0.0, expected 1026658.3265
+
+Test #1: passed 
+</pre>
