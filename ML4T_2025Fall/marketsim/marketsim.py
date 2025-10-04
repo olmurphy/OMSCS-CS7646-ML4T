@@ -135,22 +135,14 @@ def compute_portvals(
         elif order == "SELL":
             trades.loc[date, symbol] -= shares
             trades.loc[date, 'cash'] += trade_cost - (impact * trade_cost) - commission
-    print("-----trades-----")
-    print(trades)
     # init holdings for symb
     holdings = trades.copy()
     holdings.loc[holdings.index[0], 'cash'] += start_val
     holdings = holdings.cumsum()
-    print("-----holdings-----")
-    print(holdings)
 
     # cacl daily port val
     portvals = (holdings * prices).sum(axis=1)
-    print(portvals)
     return portvals
-
-
-
 
 def test_code():  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
