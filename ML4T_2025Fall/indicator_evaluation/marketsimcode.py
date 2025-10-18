@@ -71,12 +71,9 @@ def compute_portfolio_values(df_trades, start_val=100000, commission=0.00, impac
                 df_holdings.loc[date, 'Cash'] -= trade_value + cost
                 
         df_values.loc[date, 'Value'] = (df_holdings.iloc[i] * prices.iloc[i]).sum()
-    print(df_values)
     return df_values
 
 if __name__ == "__main__":
-    # 这是一个示例，展示如何使用 marketsimcode.py
-    print("Marketsim Code 示例运行中...")
     
     # 1. 定义日期和股票代码
     start_date = dt.datetime(2008, 1, 1)

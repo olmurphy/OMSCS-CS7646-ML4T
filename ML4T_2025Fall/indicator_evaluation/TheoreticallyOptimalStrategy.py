@@ -43,7 +43,7 @@ def testPolicy(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009,12,
     prices_all = get_data([symbol], dates)
     prices = prices_all[[symbol]].dropna() # NaN
     
-    # init data fram 初始化交易数据框和持仓
+    # init data fram
     df_trades = pd.DataFrame(0.0, index=prices.index, columns=[symbol])
     current_holdings = 0
     
@@ -84,8 +84,3 @@ if __name__ == "__main__":
     sd = dt.datetime(2008, 1, 1)
     ed = dt.datetime(2009, 12, 31)
     df_trades = testPolicy(symbol="JPM", sd=sd, ed=ed, sv=100000)
-    
-    print("TOS 交易数据框 (前 5 行):")
-    print(df_trades.head())
-    print("\nTOS 交易数据框 (后 5 行):")
-    print(df_trades.tail())

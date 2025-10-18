@@ -1,21 +1,18 @@
 import datetime as dt
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import os
 
-# 导入其他文件中的函数/模块
 from util import get_data
 from marketsimcode import compute_portfolio_values
 import TheoreticallyOptimalStrategy as tos
 import indicators as ind
 
-def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return "omurphy8"	
+def author():                                                                                             
+    """                                                                                               
+    :return: The GT username of the student                                                                                               
+    :rtype: str                                                                                               
+    """                                                                                               
+    return "omurphy8"   
 
 def study_group():
     """
@@ -27,23 +24,23 @@ def study_group():
 
 def compute_performance_metrics(port_val):
     """
-    计算投资组合的性能指标。
+    Calculate portfolio performance metrics.
     """
-    # 归一化：所有值除以第一个值 (已在绘图时处理，但此处为确保准确性再次处理)
+    # Normalization: All values divided by the first value (Already handled when plotting, but processed again here for accuracy)
     normed_port_val = port_val / port_val.iloc[0]
     
-    # 累计收益 (CR)
+    # Cumulative Return (CR)
     cr = normed_port_val.iloc[-1] - normed_port_val.iloc[0]
     
-    # 每日收益 (DR)
+    # Daily Returns (DR)
     daily_returns = port_val.copy()
     daily_returns[1:] = (port_val[1:] / port_val[:-1].values) - 1
-    daily_returns.iloc[0] = 0 # 将第一天的每日收益设置为 0
+    daily_returns.iloc[0] = 0 # Set the first day's daily return to 0
     
-    # 每日收益平均值 (Mean DR)
+    # Mean Daily Return (Mean DR)
     mean_dr = daily_returns.mean()
     
-    # 每日收益标准差 (Stdev DR)
+    # Standard Deviation of Daily Return (Stdev DR)
     stdev_dr = daily_returns.std()
     
     return cr, mean_dr, stdev_dr
@@ -57,10 +54,10 @@ def generate_tos_report(tos_port_val, benchmark_port_val):
     output_filename = 'p6_results.txt'
     with open(output_filename, 'w') as f:
         f.write("--- (TOS) and benchmark performance comparison ---\n")
-        f.write(f"time: {sd.strftime('%Y-%m-%d')} 至 {ed.strftime('%Y-%m-%d')}\n")
+        f.write(f"time: {sd.strftime('%Y-%m-%d')} to {ed.strftime('%Y-%m-%d')}\n")
         f.write(f"stock symbol: {symbol}\n\n")
         
-        # 格式化输出到小数点后 6 位
+        # Format output to 6 decimal places
         f.write("performance indicator (to 6 sig digits):\n")
         f.write("----------------------------------------------------------------\n")
         f.write(f"| indicator | (TOS) | Benchmark | \n")
@@ -69,35 +66,24 @@ def generate_tos_report(tos_port_val, benchmark_port_val):
         f.write(f"| stdev daily return | {tos_stdev_dr:.6f} | {bench_stdev_dr:.6f} |\n")
         f.write(f"| mean daily return mean daily return | {tos_mean_dr:.6f} | {bench_mean_dr:.6f} |\n")
         f.write("----------------------------------------------------------------\n\n")
-        
-    
 
-    # general files
-    # 3. 生成性能对比图表
-    # ------------------------------------------
-    
-    # 归一化投资组合价值
+    # general chart files
+    # Norm portfolio value
     normed_tos = tos_port_val / tos_port_val.iloc[0]
     normed_bench = benchmark_port_val / benchmark_port_val.iloc[0]
     
     plt.figure(figsize=(10, 6))
-    plt.plot(normed_bench, label='基准 (Benchmark)', color='purple') # 基准：紫线
-    plt.plot(normed_tos, label='理论最优策略 (TOS)', color='red')    # TOS：红线
+    plt.plot(normed_bench, label='Benchmark', color='purple')
+    plt.plot(normed_tos, label='Theoretically Optimal Strategy (TOS)', color='red')
     
-    plt.title(f"理论最优策略 (TOS) 与基准对比 ({symbol})", fontsize=16)
-    plt.xlabel("日期", fontsize=12)
-    plt.ylabel("投资组合价值 (归一化)", fontsize=12)
+    plt.title(f"Theoretically Optimal Strategy (TOS) vs Benchmark Comparison ({symbol})", fontsize=16)
+    plt.xlabel("Date", fontsize=12)
+    plt.ylabel("Portfolio Value (Normalized)", fontsize=12)
     plt.legend(loc='best')
     plt.grid(True)
     
-    # 确保保存到 ./images 文件夹
-    if not os.path.exists('images'):
-        os.makedirs('images')
-    
     plt.savefig("images/TOS_Performance_Comparison.png")
     plt.close()
-    
-    print("✅ TOS 性能对比图表已保存到 images/TOS_Performance_Comparison.png")
 
 
 if __name__ == "__main__":
@@ -140,14 +126,11 @@ if __name__ == "__main__":
     )
     benchmark_port_val = benchmark_port_val['Value'] 
     
-    # 1.4. 生成 TOS 报告 (图表和表格)
+    # generate TOS Report, chart & table
     generate_tos_report(tos_port_val, benchmark_port_val)
 
-    # ==========================================================================
-    # 第 2 部分：技术指标
-    # ==========================================================================
+    # technical indicators
     
-    # 2.1. 运行并生成指标图表
+    # Run and generate indicator charts
     df_indicator_results = ind.run_all_indicators(symbol=symbol, sd=sd, ed=ed)
     
-    print("\n--- 所有项目任务已完成。请检查 images/ 文件夹中的图表以及 p6_results.txt 中的统计数据。---")

@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import datetime as dt
 from util import get_data
 
-def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return "omurphy8"	
+def author():                                                                                             
+    """                                                                                               
+    :return: The GT username of the student                                                                                               
+    :rtype: str                                                                                               
+    """                                                                                               
+    return "omurphy8"   
 
 def study_group():
     """
@@ -19,44 +19,40 @@ def study_group():
     """
     return "omurphy8"
 
-# 每个函数必须返回单个实际结果向量 (一维 NumPy 或 Pandas 数组)
+# Each function must return a single actual result vector (1D NumPy or Pandas array)
 
 def compute_stdev(prices, window=20):
-    """ 
-    计算标准差 (stdev)
-    """
     return prices.rolling(window=window).std()
 
 def compute_sma(prices, window=20):
-    """ 计算简单移动平均线 (SMA) """
     return prices.rolling(window=window).mean()
 
 def bollinger_band_value(prices, window=20):
     """
-    计算布林带值 (BBV) 或 %B。
+    cal Bollinger Band Value (BBV) or %B.
 
-    BBV[t] = (价格[t] - SMA[t]) / (2 * stdev[t])
+    BBV[t] = (Price[t] - SMA[t]) / (2 * stdev[t])
     """
     sma = compute_sma(prices, window)
     stdev = compute_stdev(prices, window)
     
-    # 避免除以 0
+    # Avoid division by 0
     stdev_safe = np.where(stdev == 0, 1e-6, stdev)
     
-    # 布林带值
+    # Bollinger Band Value
     bbv = (prices - sma) / (2 * stdev_safe)
     
     return bbv.values
 
 def simple_moving_average_ratio(prices, window=20):
     """
-    计算价格与简单移动平均线 (SMA) 的比率。
+    calc the ratio of price to sma
 
-    SMAR[t] = 价格[t] / SMA[t]
+    SMAR[t] = Price[t] / SMA[t]
     """
     sma = compute_sma(prices, window)
     
-    # 避免除以 0
+    # Avoid division by zero
     sma_safe = np.where(sma == 0, 1e-6, sma)
     
     smar = prices / sma_safe
@@ -65,9 +61,9 @@ def simple_moving_average_ratio(prices, window=20):
 
 def momentum(prices, window=10):
     """
-    计算动量 (Momentum)。
+    Calculate Momentum.
 
-    Momentum[t] = (价格[t] / 价格[t - window]) - 1
+    Momentum[t] = (Price[t] / Price[t - window]) - 1
     """
     mom = (prices / prices.shift(window)) - 1
     
@@ -75,47 +71,45 @@ def momentum(prices, window=10):
 
 def commodity_channel_index(prices, window=14):
     """
-    计算商品通道指数 (CCI)。
+    Calculate Commodity Channel Index (CCI).
 
-    CCI = (典型价格 - SMA(典型价格)) / (0.015 * 均值偏差)
+    CCI = (Typical Price - SMA(Typical Price)) / (0.015 * Mean Deviation)
 
-    注意: 典型价格 (TP) = (最高价 + 最低价 + 收盘价) / 3
-    这里我们使用每日收盘价作为 TP 的近似，因为我们只获取收盘价数据。
+    Note: Typical Price (TP) = (High + Low + Close) / 3
+    Here we use daily closing price as an approximation for TP, as we only retrieve closing price data.
     """
-    # 实际应用中需要 OHLC 数据。此处使用收盘价作为典型价格的近似。
     typical_price = prices
     
-    # 1. 计算 SMA(TP)
     sma_tp = typical_price.rolling(window=window).mean()
     
-    # 2. 计算均值偏差 (Mean Deviation)
-    # 均值偏差是 TP 与 SMA(TP) 差值的 SMA 绝对值
+    # 2. calc mean deviation (MD)
+    # MD is the SMA of the absolute difference between TP and SMA(TP)
     md = abs(typical_price - sma_tp).rolling(window=window).mean()
     
-    # 避免除以 0
+    # Avoid division by 0
     md_safe = np.where(md == 0, 1e-6, md)
     
-    # 3. 计算 CCI
+    # 3. calc CCI
     cci = (typical_price - sma_tp) / (0.015 * md_safe)
     
     return cci.values
 
 def percentage_price_oscillator(prices, short_window=12, long_window=26):
     """
-    计算百分比价格振荡器 (PPO)。
+    Calculate Percentage Price Oscillator (PPO).
 
     PPO = ((EMA_short - EMA_long) / EMA_long) * 100
     """
-    # 计算短周期指数移动平均线 (EMA)
+    # calc Short-period Exponential Moving Average (EMA)
     ema_short = prices.ewm(span=short_window, adjust=False).mean()
     
-    # 计算长周期指数移动平均线 (EMA)
+    # Calculate Long-period Exponential Moving Average (EMA)
     ema_long = prices.ewm(span=long_window, adjust=False).mean()
     
-    # 避免除以 0
+    # Avoid division by zero
     ema_long_safe = np.where(ema_long == 0, 1e-6, ema_long)
 
-    # 计算 PPO
+    # Calculate PPO
     ppo = ((ema_short - ema_long) / ema_long_safe) * 100
     
     return ppo.values
@@ -127,41 +121,41 @@ def save_plot(filename):
 
 def plot_indicator(df_data, prices, indicator_values, indicator_name, ylabel, window):
     """
-    生成并保存单个指标的图表。
+    Generate and save a chart for a single indicator.
     """
     plt.figure(figsize=(10, 6))
     
-    # 归一化价格 (用于对比指标)
+    # Normalize prices (for comparison with the indicator)
     normed_prices = prices / prices.iloc[0]
     
-    # 指标数据框 (用于绘图)
+    # Indicator DataFrame (for plotting)
     df_indicator = pd.DataFrame(index=df_data.index)
     df_indicator[indicator_name] = indicator_values
     df_indicator['Price (Normalized)'] = normed_prices.values
     
-    # 创建子图
+    # Create subplots
     ax1 = plt.subplot(211)
-    ax1.plot(normed_prices, label="JPM 价格 (归一化)", color='blue')
-    ax1.set_title(f"JPM 价格与 {indicator_name} ({window} 窗口)", fontsize=14)
-    ax1.set_ylabel("价格 (归一化)", fontsize=10)
+    ax1.plot(normed_prices, label="JPM Price (Normalized)", color='blue')
+    ax1.set_title(f"JPM Price and {indicator_name} ({window} Window)", fontsize=14)
+    ax1.set_ylabel("Price (Normalized)", fontsize=10)
     ax1.legend(loc='upper left')
     ax1.grid(True)
     
     ax2 = plt.subplot(212, sharex=ax1)
     ax2.plot(df_indicator[indicator_name], label=indicator_name, color='orange')
     ax2.set_ylabel(ylabel, fontsize=10)
-    ax2.set_xlabel("日期", fontsize=10)
+    ax2.set_xlabel("Date", fontsize=10)
     ax2.legend(loc='upper left')
     ax2.grid(True)
 
-    # 对于 BBV 和 CCI，添加额外的水平线以便可视化交易信号
+    # For BBV and CCI, add extra horizontal lines for visualizing trading signals
     if indicator_name == 'Bollinger Band Value (BBV)':
-        ax2.axhline(y=1.0, color='r', linestyle='--', label='上轨 (+2 SD)')
-        ax2.axhline(y=-1.0, color='g', linestyle='--', label='下轨 (-2 SD)')
+        ax2.axhline(y=1.0, color='r', linestyle='--', label='Upper Band (+2 SD)')
+        ax2.axhline(y=-1.0, color='g', linestyle='--', label='Lower Band (-2 SD)')
         ax2.legend(loc='upper left')
     elif indicator_name == 'Commodity Channel Index (CCI)':
-        ax2.axhline(y=100, color='r', linestyle='--', label='超买 (+100)')
-        ax2.axhline(y=-100, color='g', linestyle='--', label='超卖 (-100)')
+        ax2.axhline(y=100, color='r', linestyle='--', label='Overbought (+100)')
+        ax2.axhline(y=-100, color='g', linestyle='--', label='Oversold (-100)')
         ax2.legend(loc='upper left')
 
     plt.tight_layout()
@@ -170,47 +164,45 @@ def plot_indicator(df_data, prices, indicator_values, indicator_name, ylabel, wi
 
 def run_all_indicators(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31)):
     """
-    运行所有指标，计算值并生成图表。
+    Run all indicators, calculate values, and generate charts.
     """
-    print("--- 正在计算并绘图技术指标... ---")
     
     dates = pd.date_range(sd, ed)
     prices_all = get_data([symbol], dates)
     prices = prices_all[[symbol]].dropna()
     
-    # 确保价格数据是 Pandas Series
+    # Ensure price data is a Pandas Series
     prices = prices[symbol] 
     
-    # 定义指标及其参数
+    # Define indicators and their parameters
     indicators = [
-        ('Bollinger Band Value (BBV)', bollinger_band_value, 20, 'BBV 值'),
-        ('Simple Moving Average Ratio (SMAR)', simple_moving_average_ratio, 20, '价格/SMA 比率'),
-        ('Momentum (MOM)', momentum, 10, '动量'),
-        ('Commodity Channel Index (CCI)', commodity_channel_index, 14, 'CCI 值'),
-        ('Percentage Price Oscillator (PPO)', percentage_price_oscillator, (12, 26), 'PPO 值')
+        ('Bollinger Band Value (BBV)', bollinger_band_value, 20, 'BBV Value'),
+        ('Simple Moving Average Ratio (SMAR)', simple_moving_average_ratio, 20, 'Price/SMA Ratio'),
+        ('Momentum (MOM)', momentum, 10, 'Momentum'),
+        ('Commodity Channel Index (CCI)', commodity_channel_index, 14, 'CCI Value'),
+        ('Percentage Price Oscillator (PPO)', percentage_price_oscillator, (12, 26), 'PPO Value')
     ]
 
-    # 存储指标结果向量的字典
+    # Dictionary to store indicator result vectors
     df_indicator_results = pd.DataFrame(index=prices.index)
     
     for name, func, window, ylabel in indicators:
         
-        # 兼容性处理：PPO 窗口是元组，其他是整数
+        # Compatibility handling: PPO window is tuple, others ints
         if isinstance(window, tuple):
             result_vector = func(prices, window[0], window[1])
         else:
             result_vector = func(prices, window)
             
-        # 将结果转换为 Series (确保索引正确)
+        # Convert result -> Series, ensure idx correct
         result_series = pd.Series(result_vector, index=prices.index)
         df_indicator_results[name] = result_series
         
-        # 绘图
+        # Plotting
         plot_indicator(prices, prices, result_series, name, ylabel, window)
-        print(f"✅ {name} 图表已生成并保存。")
         
     return df_indicator_results
 
 if __name__ == "__main__":
-    # 示例运行所有指标
+    # Example run of all indicators
     run_all_indicators()
