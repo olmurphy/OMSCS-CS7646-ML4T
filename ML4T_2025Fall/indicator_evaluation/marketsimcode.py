@@ -2,12 +2,12 @@ from util import get_data
 import datetime as dt
 import pandas as pd
 
-def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    return "omurphy8"	
+def author():                                                                                             
+    """                                                                                               
+    :return: The GT username of the student                                                                                               
+    :rtype: str                                                                                               
+    """                                                                                               
+    return "omurphy8"   
 
 def study_group():
     """
@@ -18,39 +18,39 @@ def study_group():
     return "omurphy8"
 
 def compute_portfolio_values(df_trades, start_val=100000, commission=0.00, impact=0.00):
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    Computes the portfolio values.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param start_val: The starting value of the portfolio  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type start_val: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param commission: The fixed amount in dollars charged for each transaction (both entry and exit)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type commission: float  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param impact: The amount the price moves against the trader compared to the historical data at each transaction  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type impact: float  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :return: the result (portvals) as a single-column dataframe, containing the value of the portfolio for each trading day in the first column from start_date to end_date, inclusive.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :rtype: pandas.DataFrame  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """                                                                                               
+    Computes the portfolio values.                                                                                                
+                                                                                              
+    :param start_val: The starting value of the portfolio                                                                                             
+    :type start_val: int                                                                                              
+    :param commission: The fixed amount in dollars charged for each transaction (both entry and exit)                                                                                             
+    :type commission: float                                                                                               
+    :param impact: The amount the price moves against the trader compared to the historical data at each transaction                                                                                              
+    :type impact: float                                                                                               
+    :return: the result (portvals) as a single-column dataframe, containing the value of the portfolio for each trading day in the first column from start_date to end_date, inclusive.                                                                                               
+    :rtype: pandas.DataFrame                                                                                              
     """
-    # 确定日期范围和股票代码
+    # Determine date range and stock symbols
     dates = df_trades.index
     symbols = df_trades.columns.tolist()
 
     prices = get_data(symbols, dates)
     prices['Cash'] = 1.0
 
-    # 初始化持股 (Holdings) 和价值 (Values) 数据框
+    # Initialize Holdings and Values DataFrames
     df_holdings = pd.DataFrame(0.0, index=prices.index, columns=symbols + ['Cash'])
     df_values = pd.DataFrame(0.0, index=prices.index, columns=['Value'])
     
-    # 投资组合初始现金
+    # Initial portfolio cash
     df_holdings.iloc[0, df_holdings.columns.get_loc('Cash')] = start_val
     
-    # 每日交易
+    # Daily trades
     df_orders = df_trades.copy()
     
-    # 初始化每日持股量
+    # Initialize daily holdings volume
     df_holdings.iloc[0] = df_holdings.iloc[0].copy()
 
-    # 遍历每个交易日
+    # Iterate through each trading day
     for i in range(len(df_orders)):
         date = df_orders.index[i]
         
@@ -75,27 +75,27 @@ def compute_portfolio_values(df_trades, start_val=100000, commission=0.00, impac
 
 if __name__ == "__main__":
     
-    # 1. 定义日期和股票代码
+    # 1. Define dates and stock symbol
     start_date = dt.datetime(2008, 1, 1)
     end_date = dt.datetime(2009, 12, 31)
     test_symbol = 'JPM'
     
-    # 2. 创建一个示例交易数据框 (买入 1000 股，持有，然后卖出 1000 股)
+    # 2. Create an example trades DataFrame (buy 1000 shares, hold, then sell 1000 shares)
     dates = pd.date_range(start_date, end_date)
     prices_full = get_data([test_symbol], dates)
     prices_full = prices_full[[test_symbol]]
 
     df_trades_example = pd.DataFrame(0.0, index=prices_full.index, columns=[test_symbol])
     
-    # 示例交易：第一天买入 1000 股
+    # Example trade: Buy 1000 shares on the first day
     first_trade_date = df_trades_example.index[0]
     df_trades_example.loc[first_trade_date, test_symbol] = 1000 
 
-    # 示例交易：最后一天平仓
+    # Example trade: Close position on the last day
     last_trade_date = df_trades_example.index[-1]
     df_trades_example.loc[last_trade_date, test_symbol] = -1000
     
-    # 3. 计算投资组合价值 (使用项目 6 的成本：佣金 0.00，影响 0.00)
+    # 3. Calculate portfolio values (using Project 6 costs: commission 0.00, impact 0.00)
     portvals = compute_portfolio_values(
         df_trades_example, 
         start_val=100000, 
@@ -103,5 +103,5 @@ if __name__ == "__main__":
         impact=0.00
     )
     
-    print("\n示例投资组合价值 (前 5 天):")
+    print("\nExample Portfolio Values (First 5 days):")
     print(portvals.head())
