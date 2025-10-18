@@ -96,7 +96,6 @@ def compute_portvals(
     # this is the function the autograder will call to test your code  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # NOTE: orders_file may be a string, or it may be a file object. Your  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # code should work correctly with either input  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # TODO: Your code here  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # In the template, instead of computing the value of the portfolio, we just  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # read in the value of IBM over 6 months  	
@@ -108,7 +107,6 @@ def compute_portvals(
     # get date range & symb
     start_date = orders_df.index.min()
     end_date = orders_df.index.max()
-    all_dates = pd.date_range(start_date, end_date)
     symbols = orders_df["Symbol"].unique().tolist()
     
     if 'SPY' not in symbols:
@@ -117,11 +115,9 @@ def compute_portvals(
     # get prices for all symb & date range
     prices = get_data(symbols, pd.date_range(start_date, end_date))
     prices = prices.drop("SPY", axis=1) # removing spy
-    prices["cash"] = 1.0  # add a cash column for cash
+    prices["cash"] = 1.0  # add cash column for cash
 
-    dates = prices.index
-
-    trades = pd.DataFrame(0, index=dates, columns=prices.columns)
+    trades = pd.DataFrame(0, index=prices.index, columns=prices.columns)
     for date, row in orders_df.iterrows():
         symbol = row['Symbol']
         order = row['Order']
@@ -151,9 +147,8 @@ def test_code():
     # this is a helper function you can use to test your code  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # note that during autograding his function will not be called.  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Define input parameters  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    of = "./orders/orders-10.csv"  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # of = "./orders/orders-02.csv"  		  	   		 	 	 		  		  		    	 		 		   		 		  
+  		  	   		 	 	 		  		  		    	 		 		   		 		  	  	   		 	 	 		  		  		    	 		 		   		 		  
+    of = "./orders/orders-02.csv"  		  	   		 	 	 		  		  		    	 		 		   		 		  
     sv = 1000000  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # Process orders  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -194,20 +189,3 @@ def test_code():
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     test_code()	  	   		 	 	 		  		  		    	 		 		   		 		  
-
-# MarketsimTestCase(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         description="Orders 10, impact and commission",  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         group="both",  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         inputs=dict(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             orders_file="orders-10.csv",  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             start_val=1000000,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             commission=9.95,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             impact=0.005,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         ),  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         outputs=dict(  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             num_days=141,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             last_day_portval=1026658.3265,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             sharpe_ratio=0.627643575702,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#             avg_daily_ret=0.000222013722594,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#         ),  		  	   		 	 	 		  		  		    	 		 		   		 		  
-#     ), 
