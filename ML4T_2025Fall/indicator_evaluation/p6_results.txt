@@ -4,10 +4,10 @@ stock symbol: JPM
 
 performance indicator (to 6 sig digits):
 ----------------------------------------------------------------
-| indicator | (TOS) | Benchmark | 
+| Metric | (TOS) | Benchmark | 
 ----------------------------------------------------------------
 | cumulative return | 5.786100 | 0.012300 |
 | stdev daily return | 0.004546 | 0.016987 |
-| mean daily return mean daily return | 0.003809 | 0.000168 |
+| mean daily return | 0.003809 | 0.000168 |
 ----------------------------------------------------------------
 

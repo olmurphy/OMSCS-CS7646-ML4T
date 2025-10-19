@@ -39,9 +39,8 @@ def bollinger_band_value(prices, window=20):
     # Avoid division by 0
     stdev_safe = np.where(stdev == 0, 1e-6, stdev)
     
-    # Bollinger Band Value
+    # BBV
     bbv = (prices - sma) / (2 * stdev_safe)
-    
     return bbv.values
 
 def simple_moving_average_ratio(prices, window=20):
@@ -56,7 +55,6 @@ def simple_moving_average_ratio(prices, window=20):
     sma_safe = np.where(sma == 0, 1e-6, sma)
     
     smar = prices / sma_safe
-    
     return smar.values
 
 def momentum(prices, window=10):
@@ -66,7 +64,6 @@ def momentum(prices, window=10):
     Momentum[t] = (Price[t] / Price[t - window]) - 1
     """
     mom = (prices / prices.shift(window)) - 1
-    
     return mom.values
 
 def commodity_channel_index(prices, window=14):
@@ -79,19 +76,17 @@ def commodity_channel_index(prices, window=14):
     Here we use daily closing price as an approximation for TP, as we only retrieve closing price data.
     """
     typical_price = prices
-    
     sma_tp = typical_price.rolling(window=window).mean()
     
-    # 2. calc mean deviation (MD)
+    # calc mean deviation (MD)
     # MD is the SMA of the absolute difference between TP and SMA(TP)
     md = abs(typical_price - sma_tp).rolling(window=window).mean()
     
     # Avoid division by 0
     md_safe = np.where(md == 0, 1e-6, md)
     
-    # 3. calc CCI
+    # calc CCI
     cci = (typical_price - sma_tp) / (0.015 * md_safe)
-    
     return cci.values
 
 def percentage_price_oscillator(prices, short_window=12, long_window=26):
@@ -103,13 +98,13 @@ def percentage_price_oscillator(prices, short_window=12, long_window=26):
     # calc Short-period Exponential Moving Average (EMA)
     ema_short = prices.ewm(span=short_window, adjust=False).mean()
     
-    # Calculate Long-period Exponential Moving Average (EMA)
+    # calc Long-period Exponential Moving Average (EMA)
     ema_long = prices.ewm(span=long_window, adjust=False).mean()
     
-    # Avoid division by zero
+    # aoid division by 0
     ema_long_safe = np.where(ema_long == 0, 1e-6, ema_long)
 
-    # Calculate PPO
+    # calc PPO
     ppo = ((ema_short - ema_long) / ema_long_safe) * 100
     
     return ppo.values
@@ -166,15 +161,14 @@ def run_all_indicators(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(
     """
     Run all indicators, calculate values, and generate charts.
     """
-    
     dates = pd.date_range(sd, ed)
     prices_all = get_data([symbol], dates)
     prices = prices_all[[symbol]].dropna()
     
-    # Ensure price data is a Pandas Series
+    # ensure price data is Pandas Series
     prices = prices[symbol] 
     
-    # Define indicators and their parameters
+    # def indicators & their parameters for better code organization
     indicators = [
         ('Bollinger Band Value (BBV)', bollinger_band_value, 20, 'BBV Value'),
         ('Simple Moving Average Ratio (SMAR)', simple_moving_average_ratio, 20, 'Price/SMA Ratio'),
@@ -183,26 +177,24 @@ def run_all_indicators(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(
         ('Percentage Price Oscillator (PPO)', percentage_price_oscillator, (12, 26), 'PPO Value')
     ]
 
-    # Dictionary to store indicator result vectors
+    # dic store indicator result vectors
     df_indicator_results = pd.DataFrame(index=prices.index)
     
     for name, func, window, ylabel in indicators:
         
-        # Compatibility handling: PPO window is tuple, others ints
+        # compatibility handling: PPO window is tuple, others ints
         if isinstance(window, tuple):
             result_vector = func(prices, window[0], window[1])
         else:
             result_vector = func(prices, window)
             
-        # Convert result -> Series, ensure idx correct
+        # convert result -> Series, ensure idx correct
         result_series = pd.Series(result_vector, index=prices.index)
         df_indicator_results[name] = result_series
         
-        # Plotting
         plot_indicator(prices, prices, result_series, name, ylabel, window)
         
     return df_indicator_results
 
 if __name__ == "__main__":
-    # Example run of all indicators
     run_all_indicators()

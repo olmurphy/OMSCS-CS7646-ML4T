@@ -60,11 +60,11 @@ def generate_tos_report(tos_port_val, benchmark_port_val):
         # Format output to 6 decimal places
         f.write("performance indicator (to 6 sig digits):\n")
         f.write("----------------------------------------------------------------\n")
-        f.write(f"| indicator | (TOS) | Benchmark | \n")
+        f.write(f"| Metric | (TOS) | Benchmark | \n")
         f.write("----------------------------------------------------------------\n")
         f.write(f"| cumulative return | {tos_cr:.6f} | {bench_cr:.6f} |\n")
         f.write(f"| stdev daily return | {tos_stdev_dr:.6f} | {bench_stdev_dr:.6f} |\n")
-        f.write(f"| mean daily return mean daily return | {tos_mean_dr:.6f} | {bench_mean_dr:.6f} |\n")
+        f.write(f"| mean daily return | {tos_mean_dr:.6f} | {bench_mean_dr:.6f} |\n")
         f.write("----------------------------------------------------------------\n\n")
 
     # general chart files
@@ -129,8 +129,6 @@ if __name__ == "__main__":
     # generate TOS Report, chart & table
     generate_tos_report(tos_port_val, benchmark_port_val)
 
-    # technical indicators
-    
     # Run and generate indicator charts
     df_indicator_results = ind.run_all_indicators(symbol=symbol, sd=sd, ed=ed)
     
