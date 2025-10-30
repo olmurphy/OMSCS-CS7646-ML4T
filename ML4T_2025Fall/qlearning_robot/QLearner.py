@@ -23,14 +23,28 @@ GT honor code violation.
 -----do not edit anything above this line---  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT User ID: tb34 (replace with your User ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+GT User ID: omurphy8 (replace with your User ID)
+GT ID: 904015662  		  	   		 	 	 		  		  		    	 		 		   		 		  
 """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import random as rand  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-import numpy as np  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+import numpy as np
+
+def author():  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    return "omurphy8"	  	 
+
+def study_group():
+    """
+    Returns
+        A comma separated string of GT_Name of each member of your study group
+        # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+    """
+    return "omurphy8"
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 class QLearner(object):  		  	   		 	 	 		  		  		    	 		 		   		 		  
     """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -67,10 +81,61 @@ class QLearner(object):
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
         Constructor method  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        self.verbose = verbose  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        self.num_actions = num_actions  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        self.s = 0  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        self.a = 0  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        self.verbose = verbose                                                                                                
+        self.num_states = num_states
+        self.num_actions = num_actions                                                                                                
+        self.alpha = alpha
+        self.gamma = gamma
+        self.rar = rar
+        self.radr = radr
+        self.dyna = dyna
+        self.s = 0                                                                                                
+        self.a = 0  		
+
+        # 初始化 Q 表格
+        self.Q = np.zeros((num_states, num_actions))  	
+
+        # Dyna-Q 模型初始化
+        if self.dyna > 0:   
+            # 存储 S, A 元组的列表，用于随机选择幻觉经验
+            self.experience = set()
+            # 转换模型 T[s, a] -> s_prime。使用一个列表来存储所有观察到的 s_prime
+            # 因为转换在导航问题中可能是随机的。
+            # 但是，对于确定性或近乎确定性的转换，我们可以只存储最近的 s_prime
+            self.T_model = {} # T_model[s][a] = [s_prime_1, s_prime_2, ...]
+            # 奖励模型 R[s, a] -> r。使用一个字典存储 (s, a) 对应的最近奖励
+            self.R_model = np.zeros((num_states, num_actions)) 
+
+    def author(test="test"):  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        """  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        """  		  	
+        print("find me:", test)   		 	 	 		  		  		    	 		 		   		 		  
+        return "omurphy8"
+
+    def study_group():
+        """
+        Returns
+            A comma separated string of GT_Name of each member of your study group
+            # Example: "gburdell3, jdoe77, tbalch7" or "gburdell3" if a single individual working alone
+        """
+        return "omurphy8"	      
+    
+    def _choose_action(self, s):
+        """
+        根据 rar 和 Q 表格选择动作 (epsilon-贪婪)
+        """
+        if rand.random() < self.rar:
+            # 随机动作
+            action = rand.randint(0, self.num_actions - 1)
+        else:
+            # 贪婪动作: 选择 Q[s, :] 中最大的动作
+            # 使用 argmax 以解决多个最大值的情况
+            q_values = self.Q[s, :]
+            best_actions = np.where(q_values == np.max(q_values))[0]
+            action = rand.choice(best_actions)
+        return action   	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     def querysetstate(self, s):  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -82,10 +147,11 @@ class QLearner(object):
         :rtype: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
         self.s = s  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        action = rand.randint(0, self.num_actions - 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        if self.verbose:  		  	   		 	 	 		  		  		    	 		 		   		 		  
-            print(f"s = {s}, a = {action}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        return action  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        action = self._choose_action(s)	
+        self.a = action	  	   		 	
+        if self.verbose:                                                                                              
+            print(f"s = {s}, a = {action}")                                                                                               
+        return action 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     def query(self, s_prime, r):  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -97,12 +163,87 @@ class QLearner(object):
         :type r: float  		  	   		 	 	 		  		  		    	 		 		   		 		  
         :return: The selected action  		  	   		 	 	 		  		  		    	 		 		   		 		  
         :rtype: int  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        action = rand.randint(0, self.num_actions - 1)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        if self.verbose:  		  	   		 	 	 		  		  		    	 		 		   		 		  
-            print(f"s = {s_prime}, a = {action}, r={r}")  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        return action  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        """  		  	   		 
+
+        s = self.s
+        a = self.a
+
+        # 1. Q-Table 更新 (真实经验)
+        # Q[s, a] <- (1 - alpha) * Q[s, a] + alpha * (r + gamma * max_a' Q[s_prime, a'])
+        max_q_prime = np.max(self.Q[s_prime, :])
+        self.Q[s, a] = (1 - self.alpha) * self.Q[s, a] + self.alpha * (r + self.gamma * max_q_prime)
+        
+        # 2. Dyna-Q (模型学习和幻觉更新)
+        if self.dyna > 0:
+            # 2a. 模型学习 (存储经验: s, a, s_prime, r)
+            self.experience.add((s, a))
+            self.R_model[s, a] = r # 存储最近的奖励
+            
+            # 存储转换模型
+            if s not in self.T_model:
+                self.T_model[s] = {}
+            if a not in self.T_model[s]:
+                self.T_model[s][a] = []
+                
+            # 清除旧的，只存储最新的 s_prime，因为 T 可能是确定性的
+            # 也可以存储计数并从中采样，但只存储最新的 s' 通常可以简化模型
+            self.T_model[s][a] = s_prime
+
+            # 2b. 幻觉更新
+            experience_list = list(self.experience)
+            for _ in range(self.dyna):
+                # 随机选择一个以前经历过的状态-动作对 (s_rand, a_rand)
+                s_rand, a_rand = rand.choice(experience_list)
+                
+                # 从模型中获取预测的 s'_rand 和 r_rand
+                r_rand = self.R_model[s_rand, a_rand]
+                
+                # 获取 s'_rand
+                if a_rand in self.T_model[s_rand]:
+                    s_prime_rand = self.T_model[s_rand][a_rand]
+                else:
+                    # 如果 s_rand, a_rand 存在于 self.experience，则它们也应该存在于 self.T_model/R_model，
+                    # 除非 self.T_model 的结构更复杂。
+                    # 为了安全，如果找不到，就跳过这个幻觉步骤（但这不应该发生）
+                    continue 
+                
+                # 使用幻觉经验更新 Q 表格
+                max_q_prime_rand = np.max(self.Q[s_prime_rand, :])
+                self.Q[s_rand, a_rand] = (1 - self.alpha) * self.Q[s_rand, a_rand] + self.alpha * (r_rand + self.gamma * max_q_prime_rand)
+
+        # 3. 选择下一个动作 a' (基于 s_prime)
+        action = self._choose_action(s_prime)
+        
+        # 4. 衰减 rar
+        self.rar *= self.radr
+
+        # 5. 更新 s 和 a
+        self.s = s_prime                                                                                                
+        self.a = action
+        
+        if self.verbose:                                                                                              
+            print(f"s = {s_prime}, a = {action}, r={r}, rar={self.rar}")                                                                                              
+        return action
+
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    print("Remember Q from Star Trek? Well, this isn't him")  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    print("Remember Q from Star Trek? Well, this isn't him")  		
+
+if __name__ == "__main__":                                                                                                
+    # 示例用法 (来自指令)
+    import QLearner as ql
+    learner = ql.QLearner(num_states=100,   
+                          num_actions=4,   
+                          alpha=0.2,   
+                          gamma=0.9,   
+                          rar=0.98,   
+                          radr=0.999,   
+                          dyna=0,   
+                          verbose=False)  
+    s = 99 # 我们的初始状态 
+    a = learner.querysetstate(s) # 针对状态 s 的操作 
+    print(f"Initial state: {s}, Initial action: {a}")
+    s_prime = 5 # 在状态 s 中采取行动 a 后最终处于的新状态 
+    r = 0 # 在状态 s 中采取行动 a 的奖励 
+    next_action = learner.query(s_prime, r) 
+    print(f"New state: {s_prime}, Reward: {r}, Next action: {next_action}")  	   		 	 	 		  		  		    	 		 		   		 		  
