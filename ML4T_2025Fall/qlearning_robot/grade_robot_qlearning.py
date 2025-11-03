@@ -145,7 +145,7 @@ qlearning_test_cases = [
         group="dyna",  		  	   		 	 	 		  		  		    	 		 		   		 		  
         world_file="world01.csv",  		  	   		 	 	 		  		  		    	 		 		   		 		  
         best_reward=-12,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        median_reward=-29.5,  		  	   		 	 	 		  		  		    	 		 		   		 		  
+        median_reward=-29.5,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              		  	   		 	 	 		  		  		    	 		 		   		 		  
         max_time=10,  		  	   		 	 	 		  		  		    	 		 		   		 		  
         points=2.5,  		  	   		 	 	 		  		  		    	 		 		   		 		  
     ),  		  	   		 	 	 		  		  		    	 		 		   		 		  

@@ -228,22 +228,3 @@ class QLearner(object):
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
     print("Remember Q from Star Trek? Well, this isn't him")  		
-
-if __name__ == "__main__":                                                                                                
-    # 示例用法 (来自指令)
-    import QLearner as ql
-    learner = ql.QLearner(num_states=100,   
-                          num_actions=4,   
-                          alpha=0.2,   
-                          gamma=0.9,   
-                          rar=0.98,   
-                          radr=0.999,   
-                          dyna=0,   
-                          verbose=False)  
-    s = 99 # 我们的初始状态 
-    a = learner.querysetstate(s) # 针对状态 s 的操作 
-    print(f"Initial state: {s}, Initial action: {a}")
-    s_prime = 5 # 在状态 s 中采取行动 a 后最终处于的新状态 
-    r = 0 # 在状态 s 中采取行动 a 的奖励 
-    next_action = learner.query(s_prime, r) 
-    print(f"New state: {s_prime}, Reward: {r}, Next action: {next_action}")  	   		 	 	 		  		  		    	 		 		   		 		  
