@@ -22,8 +22,8 @@ GT honor code violation.
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 -----do not edit anything above this line---  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT User ID: omurphy8 (replace with your User ID)
+Student Name: Owen Li Murphy	  	   		 	 	 		  		  		    	 		 		   		 		  
+GT User ID: omurphy8
 GT ID: 904015662  		  	   		 	 	 		  		  		    	 		 		   		 		  
 """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -92,26 +92,18 @@ class QLearner(object):
         self.s = 0                                                                                                
         self.a = 0  		
 
-        # 初始化 Q 表格
         self.Q = np.zeros((num_states, num_actions))  	
 
-        # Dyna-Q 模型初始化
         if self.dyna > 0:   
-            # 存储 S, A 元组的列表，用于随机选择幻觉经验
             self.experience = set()
-            # 转换模型 T[s, a] -> s_prime。使用一个列表来存储所有观察到的 s_prime
-            # 因为转换在导航问题中可能是随机的。
-            # 但是，对于确定性或近乎确定性的转换，我们可以只存储最近的 s_prime
-            self.T_model = {} # T_model[s][a] = [s_prime_1, s_prime_2, ...]
-            # 奖励模型 R[s, a] -> r。使用一个字典存储 (s, a) 对应的最近奖励
-            self.R_model = np.zeros((num_states, num_actions)) 
+            self.t_model = {}
+            self.r_model = np.zeros((num_states, num_actions)) 
 
     def author(test="test"):  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
         :return: The GT username of the student  		  	   		 	 	 		  		  		    	 		 		   		 		  
         :rtype: str  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	
-        print("find me:", test)   		 	 	 		  		  		    	 		 		   		 		  
         return "omurphy8"
 
     def study_group():
@@ -123,15 +115,9 @@ class QLearner(object):
         return "omurphy8"	      
     
     def _choose_action(self, s):
-        """
-        根据 rar 和 Q 表格选择动作 (epsilon-贪婪)
-        """
         if rand.random() < self.rar:
-            # 随机动作
             action = rand.randint(0, self.num_actions - 1)
         else:
-            # 贪婪动作: 选择 Q[s, :] 中最大的动作
-            # 使用 argmax 以解决多个最大值的情况
             q_values = self.Q[s, :]
             best_actions = np.where(q_values == np.max(q_values))[0]
             action = rand.choice(best_actions)
@@ -168,56 +154,38 @@ class QLearner(object):
         s = self.s
         a = self.a
 
-        # 1. Q-Table 更新 (真实经验)
         # Q[s, a] <- (1 - alpha) * Q[s, a] + alpha * (r + gamma * max_a' Q[s_prime, a'])
         max_q_prime = np.max(self.Q[s_prime, :])
         self.Q[s, a] = (1 - self.alpha) * self.Q[s, a] + self.alpha * (r + self.gamma * max_q_prime)
         
-        # 2. Dyna-Q (模型学习和幻觉更新)
         if self.dyna > 0:
-            # 2a. 模型学习 (存储经验: s, a, s_prime, r)
             self.experience.add((s, a))
-            self.R_model[s, a] = r # 存储最近的奖励
+            self.r_model[s, a] = r
             
-            # 存储转换模型
-            if s not in self.T_model:
-                self.T_model[s] = {}
-            if a not in self.T_model[s]:
-                self.T_model[s][a] = []
+            if s not in self.t_model:
+                self.t_model[s] = {}
+            if a not in self.t_model[s]:
+                self.t_model[s][a] = []
                 
-            # 清除旧的，只存储最新的 s_prime，因为 T 可能是确定性的
-            # 也可以存储计数并从中采样，但只存储最新的 s' 通常可以简化模型
-            self.T_model[s][a] = s_prime
+            self.t_model[s][a] = s_prime
 
-            # 2b. 幻觉更新
             experience_list = list(self.experience)
             for _ in range(self.dyna):
-                # 随机选择一个以前经历过的状态-动作对 (s_rand, a_rand)
                 s_rand, a_rand = rand.choice(experience_list)
                 
-                # 从模型中获取预测的 s'_rand 和 r_rand
-                r_rand = self.R_model[s_rand, a_rand]
+                r_rand = self.r_model[s_rand, a_rand]
                 
-                # 获取 s'_rand
-                if a_rand in self.T_model[s_rand]:
-                    s_prime_rand = self.T_model[s_rand][a_rand]
+                if a_rand in self.t_model[s_rand]:
+                    s_prime_rand = self.t_model[s_rand][a_rand]
                 else:
-                    # 如果 s_rand, a_rand 存在于 self.experience，则它们也应该存在于 self.T_model/R_model，
-                    # 除非 self.T_model 的结构更复杂。
-                    # 为了安全，如果找不到，就跳过这个幻觉步骤（但这不应该发生）
                     continue 
                 
-                # 使用幻觉经验更新 Q 表格
                 max_q_prime_rand = np.max(self.Q[s_prime_rand, :])
                 self.Q[s_rand, a_rand] = (1 - self.alpha) * self.Q[s_rand, a_rand] + self.alpha * (r_rand + self.gamma * max_q_prime_rand)
 
-        # 3. 选择下一个动作 a' (基于 s_prime)
         action = self._choose_action(s_prime)
         
-        # 4. 衰减 rar
         self.rar *= self.radr
-
-        # 5. 更新 s 和 a
         self.s = s_prime                                                                                                
         self.a = action
         
