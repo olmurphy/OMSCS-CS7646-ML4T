@@ -28,11 +28,6 @@ def compute_sma(prices, window=20):
     return prices.rolling(window=window).mean()
 
 def bollinger_band_value(prices, window=20):
-    """
-    cal Bollinger Band Value (BBV) or %B.
-
-    BBV[t] = (Price[t] - SMA[t]) / (2 * stdev[t])
-    """
     sma = compute_sma(prices, window)
     stdev = compute_stdev(prices, window)
     
@@ -44,11 +39,6 @@ def bollinger_band_value(prices, window=20):
     return bbv.values
 
 def simple_moving_average_ratio(prices, window=20):
-    """
-    calc the ratio of price to sma
-
-    SMAR[t] = Price[t] / SMA[t]
-    """
     sma = compute_sma(prices, window)
     
     # Avoid division by zero
@@ -58,23 +48,10 @@ def simple_moving_average_ratio(prices, window=20):
     return smar.values
 
 def momentum(prices, window=10):
-    """
-    Calculate Momentum.
-
-    Momentum[t] = (Price[t] / Price[t - window]) - 1
-    """
     mom = (prices / prices.shift(window)) - 1
     return mom.values
 
 def commodity_channel_index(prices, window=14):
-    """
-    Calculate Commodity Channel Index (CCI).
-
-    CCI = (Typical Price - SMA(Typical Price)) / (0.015 * Mean Deviation)
-
-    Note: Typical Price (TP) = (High + Low + Close) / 3
-    Here we use daily closing price as an approximation for TP, as we only retrieve closing price data.
-    """
     typical_price = prices
     sma_tp = typical_price.rolling(window=window).mean()
     
@@ -90,11 +67,6 @@ def commodity_channel_index(prices, window=14):
     return cci.values
 
 def percentage_price_oscillator(prices, short_window=12, long_window=26):
-    """
-    Calculate Percentage Price Oscillator (PPO).
-
-    PPO = ((EMA_short - EMA_long) / EMA_long) * 100
-    """
     # calc Short-period Exponential Moving Average (EMA)
     ema_short = prices.ewm(span=short_window, adjust=False).mean()
     

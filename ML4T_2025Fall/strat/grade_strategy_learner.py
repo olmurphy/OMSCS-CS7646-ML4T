@@ -192,7 +192,8 @@ def test_strategy(
     try:  		  	   		 	 	 		  		  		    	 		 		   		 		  
         incorrect = True  		  	   		 	 	 		  		  		    	 		 		   		 		  
         if not "StrategyLearner" in globals():  		  	   		 	 	 		  		  		    	 		 		   		 		  
-            import importlib
+            import importlib  		  	   		 	 	 		  		  		    	 		 		   		 		  
+  		  	   		 	 	 		  		  		    	 		 		   		 		  
             m = importlib.import_module("StrategyLearner")  		  	   		 	 	 		  		  		    	 		 		   		 		  
             globals()["StrategyLearner"] = m  		  	   		 	 	 		  		  		    	 		 		   		 		  
         outsample_cr_to_beat = None  		  	   		 	 	 		  		  		    	 		 		   		 		  

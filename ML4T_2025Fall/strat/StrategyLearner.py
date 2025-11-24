@@ -22,36 +22,23 @@ GT honor code violation.
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 -----do not edit anything above this line---  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
-Student Name: Owen Li Murphy 		  	   		 	 	 		  		  		    	 		 		   		 		  
-GT User ID: omurphy8
-GT ID: 904015662 		 	 	 		  		  		    	 		 		   		 		  
+Student Name: Tucker Balch (replace with your name)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+GT User ID: tb34 (replace with your User ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
+GT ID: 900897987 (replace with your GT ID)  		  	   		 	 	 		  		  		    	 		 		   		 		  
 """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 import datetime as dt  		  	   		 	 	 		  		  		    	 		 		   		 		  
-import random
-import numpy as np
+import random  		  	   		 	 	 		  		  		    	 		 		   		 		  
+  		  	   		 	 	 		  		  		    	 		 		   		 		  
 import pandas as pd  		  	   		 	 	 		  		  		    	 		 		   		 		  
-import util as get_data
+import util as ut
+import numpy as np  		  	   		 	 	 		  		  		    	 		 		   		 		  
 
 from BagLearner import BagLearner
 from RTLearner import RTLearner
 from indicators import commodity_channel_index, percentage_price_oscillator, momentum
 
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-class StrategyLearner:  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    A strategy learner that can learn a trading policy using the same indicators used in ManualStrategy.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param verbose: If “verbose” is True, your code can print out information for debugging.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-        If verbose = False your code should not generate ANY output.  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type verbose: bool  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param impact: The market impact of each transaction, defaults to 0.0  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type impact: float  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :param commission: The commission amount charged, defaults to 0.0  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    :type commission: float  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    """  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    # 假设您的学习器是一个 袋装学习器，使用 RTLearner
+class StrategyLearner(object):  		  	   		 	 	 		  		  		    	 		 		   		 		  
     def __init__(self, verbose=False, impact=0.0, commission=0.0):  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
         Constructor method  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -65,9 +52,8 @@ class StrategyLearner:
         self.commission = commission
         
         # 超参数
-        self.lookback = 10 # 用于计算动量等指标的最大回溯期
         self.prediction_window = 20 # 预测未来 N 天的价格变化
-        self.threshold = 0.001 # 强买/强卖的百分比阈值 (0.5%)
+        self.threshold = 0.0015 # 强买/强卖的百分比阈值 (0.5%)
         
         # 指标参数 (可优化)
         self.cci_window = 14
@@ -76,7 +62,7 @@ class StrategyLearner:
         self.mom_window = 10
         
         # 分类器参数
-        self.leaf_size = 5 # 必须 >= 5
+        self.leaf_size = 10 # 必须 >= 5
         self.bags = 20     # BagLearner 的包数
         self.learner = BagLearner(learner=RTLearner, kwargs={"leaf_size": self.leaf_size}, bags=self.bags, boost=False, verbose=False)
         
@@ -84,25 +70,6 @@ class StrategyLearner:
         self.means = None
         self.stdevs = None
 
-    def get_indicators(self, prices_df):
-        """获取指标数据, 并处理NaNs"""
-        prices = prices_df.iloc[:, 0] # 假设只有一列价格数据
-
-        # 商品通道指数
-        cci = commodity_channel_index(prices, window=self.cci_window)
-        # 2. 价格百分比振荡器
-        ppo = percentage_price_oscillator(prices, short_window=self.ppo_short, long_window=self.ppo_long)
-        # 3. 动量
-        mom = momentum(prices, window=self.mom_window)
-
-        indicators = pd.DataFrame(index=prices.index)
-        indicators['CCI'] = cci
-        indicators['PPO'] = ppo
-        indicators['MOM'] = mom
-
-        # 删除所有指标都为 NaN 的行，或只保留从第一个指标计算出值后的行
-        return indicators.dropna()  		  	   		 	 	 		  		  		    	 		 		   		 		  
-  		  	   		 	 	 		  		  		    	 		 		   		 		  
     # this method should create a QLearner, and train it for trading  		  	   		 	 	 		  		  		    	 		 		   		 		  
     def add_evidence(  		  	   		 	 	 		  		  		    	 		 		   		 		  
         self,  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -110,13 +77,13 @@ class StrategyLearner:
         sd=dt.datetime(2008, 1, 1),  		  	   		 	 	 		  		  		    	 		 		   		 		  
         ed=dt.datetime(2009, 1, 1),  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sv=10000,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    ):  		
+    ):  		  	   		 	 	 		  		  		    	 		 		   		 		  
         """
         在样本内数据上训练策略学习器。
         """  	   		 	 	 		  		  		    	 		 		   		 		  
         # 1. 获取价格数据
         dates = pd.date_range(sd, ed)
-        prices_all = get_data([symbol], dates)
+        prices_all = ut.get_data([symbol], dates)
         prices_df = prices_all[[symbol]].fillna(method='ffill').fillna(method='bfill')
 
         # 2. 生成特征 X (指标)
@@ -154,7 +121,25 @@ class StrategyLearner:
         # 5. 训练学习器 (注意：分类器需要处理 -1/0/1 标签，BagLearner 默认是回归，需要转换为众数分类)
         # 假设您的 BagLearner/RTLearner 已修改为分类模式，使用众数而不是均值
         self.learner.add_evidence(X_final, Y.values)
- 	   		 	 	 		  		  		    	 		 		   		 		  
+
+    def get_indicators(self, prices_df):
+        """获取指标数据, 并处理NaNs"""
+        prices = prices_df.iloc[:, 0] # 假设只有一列价格数据
+
+        # 商品通道指数
+        cci = commodity_channel_index(prices, window=self.cci_window)
+        # 2. 价格百分比振荡器
+        ppo = percentage_price_oscillator(prices, short_window=self.ppo_short, long_window=self.ppo_long)
+        # 3. 动量
+        mom = momentum(prices, window=self.mom_window)
+
+        indicators = pd.DataFrame(index=prices.index)
+        indicators['CCI'] = cci
+        indicators['PPO'] = ppo
+        indicators['MOM'] = mom
+
+        # 删除所有指标都为 NaN 的行，或只保留从第一个指标计算出值后的行
+        return indicators.dropna()  		  	    		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
     # this method should use the existing policy and test it against new data  		  	   		 	 	 		  		  		    	 		 		   		 		  
     def testPolicy(  		  	   		 	 	 		  		  		    	 		 		   		 		  
@@ -163,14 +148,14 @@ class StrategyLearner:
         sd=dt.datetime(2009, 1, 1),  		  	   		 	 	 		  		  		    	 		 		   		 		  
         ed=dt.datetime(2010, 1, 1),  		  	   		 	 	 		  		  		    	 		 		   		 		  
         sv=10000,  		  	   		 	 	 		  		  		    	 		 		   		 		  
-    ):  		  	   		 	 	 		  		  		    	 		 		   		 		  
+    ):  		  	   		 	 	  		  		    	 		 		   		 		  
         """
         使用学习到的策略生成交易信号。
         """  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
         # 1. 获取价格数据
         dates = pd.date_range(sd, ed)
-        prices_all = get_data([symbol], dates)
+        prices_all = ut.get_data([symbol], dates)
         prices_df = prices_all[[symbol]].fillna(method='ffill').fillna(method='bfill')
         
         # 2. 生成特征 X (指标)
@@ -191,32 +176,42 @@ class StrategyLearner:
         for i in range(len(predictions)):
             current_date = indicators_df.index[i]
             signal = int(predictions[i]) # 预测信号: -1, 0, 1
-            
             trade_amount = 0
+
+            # 最大持仓量，从测试结果的错误信息推断是 1000 股
+            MAX_HOLDINGS = 1000
             
+             # 当前持仓 0（空仓）：
             if holdings == 0:
-                if signal == 1:
-                    trade_amount = 1000  # 买入 1000 股
-                elif signal == -1:
-                    trade_amount = -1000 # 卖出 1000 股
+                if signal == 1: # 预测 Y=1 (买)：做多 (Trade = 1000)。
+                    trade_amount = MAX_HOLDINGS  # 买入 1000 股
+                elif signal == -1: # 预测 Y=-1 (卖)：做空 (Trade = -1000)。
+                    trade_amount = -MAX_HOLDINGS # 卖出 1000 股
+                # 预测 Y=0 (持有/平仓)：保持空仓 (Trade = 0)。
             
-            elif holdings == 1000: # 多头
-                if signal == -1:
-                    trade_amount = -2000 # 从多头转空头
-                elif signal == 0: # 平仓 (可选，如果预测为 0 且当前持有多头)
-                    trade_amount = -1000 # 卖出 1000 股
-                
+            # 当前持仓 1000（多头）：
+            elif holdings == MAX_HOLDINGS: # 多头
+                if signal == -1: # 预测 Y=-1 (卖)：平仓并做空 (Trade = -2000)。
+                    trade_amount = -2 * MAX_HOLDINGS # 从多头转空头
+                # 如果 signal == 1 或 signal == 0，保持不变 (trade_amount = 0)   
+                # elif signal == 0: # 持有/平仓，保持当前持仓 (可选，如果预测为 0 且当前持有多头)
+                #     trade_amount = -1000 # 卖出 1000 股
+                # # 预测 Y=1 (买)：继续持有 (Trade = 0)。
+            
+            # 当前持仓 -1000（空头）：
             elif holdings == -1000: # 空头
-                if signal == 1:
+                if signal == 1: # 预测 Y=1 (买)：平仓并做多 (Trade = 2000)。
                     trade_amount = 2000 # 从空头转多头
-                elif signal == 0: # 平仓 (可选，如果预测为 0 且当前持有空头)
-                    trade_amount = 1000 # 买入 1000 股
+                # 如果 signal == -1 或 signal == 0，保持不变 (trade_amount = 0)
+                # elif signal == 0: # 预测 Y=0 (持有/平仓)：保持当前持仓 (Trade = 0)。
+                #     trade_amount = 1000 # 买入 1000 股
+                # 预测 Y=-1 (卖)：继续持有 (Trade = 0)。
 
             # 记录交易并更新持仓
             trades.loc[current_date, symbol] = trade_amount
             holdings += trade_amount // 1000
 
-        return trades	   		 	 	 		  		  		    	 		 		   		 		  
+        return trades	  		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
   		  	   		 	 	 		  		  		    	 		 		   		 		  
 if __name__ == "__main__":  		  	   		 	 	 		  		  		    	 		 		   		 		  
