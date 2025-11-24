@@ -154,5 +154,11 @@ def generate_plot_and_stats(portvals_list, trades_list, labels, title, filename)
     plt.savefig(filename)
     plt.close()
 
+def author():                                                                                             
+    return "omurphy8"   
+
+def study_group():
+    return "omurphy8"
+
 if __name__ == "__main__":
     run_experiment1()
