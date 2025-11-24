@@ -111,6 +111,8 @@ class StrategyLearner(object):
         # Calculate the total cost of a round-trip trade (buy + sell)
         round_trip_cost = 2 * self.impact # Commission is 0.00 for Experiment 2
 
+        Y = pd.Series(index=indicators_df.index, data=0)
+
         # 1: Strong Buy signal (Future price increase > Threshold + Round Trip Cost)
         Y[returns > (self.threshold + round_trip_cost)] = 1
         # -1: Strong Sell signal (Future price decrease > Threshold + Round Trip Cost)
@@ -215,7 +217,3 @@ class StrategyLearner(object):
             holdings += trade_amount // 1000
 
         return trades                                                                                                 
-                                                                                              
-                                                                                              
-if __name__ == "__main__":                                                                                                
-    print("One does not simply think up a strategy")

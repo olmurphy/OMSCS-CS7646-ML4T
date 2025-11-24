@@ -115,31 +115,26 @@ class ManualStrategy(object):
             trade_amount = 0
             
             if holdings == 0:
-                # No position, wait for signal
                 if long_signals >= 2:
-                    trade_amount = 1000  # Buy 1000 shares -> Long
+                    trade_amount = 1000  
                 elif short_signals >= 2:
-                    trade_amount = -1000 # Sell 1000 shares -> Short
+                    trade_amount = -1000 
             
             elif holdings == 1000:
-                # Long position, wait for sell signal or close position
                 if short_signals >= 2:
-                    trade_amount = -2000 # Reverse from long to short (Sell 2000 shares)
-                elif short_signals >= 1: # Slightly looser close signal
-                    # If at least one short signal, close position
-                    trade_amount = -1000 # Sell 1000 shares -> Close position
+                    trade_amount = -2000 
+                elif short_signals >= 1:
+                    trade_amount = -1000
                 
             elif holdings == -1000:
-                # Short position, wait for buy signal or close position
                 if long_signals >= 2:
-                    trade_amount = 2000 # Reverse from short to long (Buy 2000 shares)
-                elif long_signals >= 1: # Slightly looser close signal
-                    # If at least one long signal, close position
-                    trade_amount = 1000 # Buy 1000 shares -> Close position
+                    trade_amount = 2000 
+                elif long_signals >= 1: 
+                    trade_amount = 1000 
 
             # Record trade and update holdings
             trades.loc[current_date, symbol] = trade_amount
-            holdings += trade_amount // 1000 # Update holdings (-1, 0, 1)
+            holdings += trade_amount // 1000 
 
         return trades
     def author():                                                                                             

@@ -48,13 +48,10 @@ def run_experiment2(symbol="JPM", sv=100000,
     
     results = {}
     
-    print("--- Experiment 2: Effect of Different Impact Values on StrategyLearner ---")
-    
     for impact in impact_values:
-        print(f"\nTesting Impact: {impact}")
         
         # 1. Initialize and train the Strategy Learner
-        learner = sl.StrategyLearner(verbose=False, impact=impact, commission=commission)
+        learner = sl.StrategyLearner(verbose=False, commission=commission)
         learner.add_evidence(symbol=symbol, sd=sd_in, ed=ed_in, sv=sv)
         
         # 2. Generate in-sample trades
@@ -75,7 +72,7 @@ def run_experiment2(symbol="JPM", sv=100000,
             'Trades_df': trades_learner_in # Used to verify if trading behavior differs
         }
         
-        print(f"  Cumulative Return (CR): {cr:.6f}, Number of Trades: {num_trades}")
+        print(f"2:  Cumulative Return (CR): {cr:.6f}, Number of Trades: {num_trades}")
 
     # --- 5. Generate Chart (Portfolio Value) ---
     plt.figure(figsize=(12, 6))

@@ -30,7 +30,7 @@ def commodity_channel_index(prices, window=14):
     cci = (typical_price - sma_tp) / (0.015 * md_safe)
 
     # Return Series, convenient for subsequent merging
-    return cci.values
+    return cci
 
 # Percentage Price Oscillator (PPO)
 def percentage_price_oscillator(prices, short_window=12, long_window=26):
@@ -46,9 +46,9 @@ def percentage_price_oscillator(prices, short_window=12, long_window=26):
     # calc PPO
     ppo = ((ema_short - ema_long) / ema_long_safe) * 100
     
-    return ppo.values
+    return ppo
 
 # Momentum
 def momentum(prices, window=10):
     mom = (prices / prices.shift(window)) - 1
-    return mom.values
+    return mom

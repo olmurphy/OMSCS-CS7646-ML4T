@@ -13,11 +13,8 @@ class BagLearner:
         self.models = []
 
     def add_evidence(self, data_x, data_y):
-        # numb data points n
         n = data_x.shape[0]
-
         self.models = []
-        
         for _ in range(self.bags):
             # new learner and add it to list
             new_learner = self.learner(**self.kwargs)
@@ -25,7 +22,6 @@ class BagLearner:
 
             # bootstrap sample of data w/ replacement
             bag_indices = np.random.choice(n, size=n, replace=True)
-
             bag_x = data_x[bag_indices]
             bag_y = data_y[bag_indices]
 
@@ -38,7 +34,6 @@ class BagLearner:
             predictions.append(prediction)
 
         predictions = np.array(predictions)
-
 
         mean_predictions = np.mean(predictions, axis=0)
         return mean_predictions

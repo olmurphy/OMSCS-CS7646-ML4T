@@ -57,19 +57,23 @@ def run_experiment1(symbol="JPM", sv=100000,
     manual_strategy = ms.ManualStrategy(verbose=False, impact=impact, commission=commission)
     
     # --- 2. In-Sample Data ---
-    print(f"--- In-Sample ({sd_in.date()} - {ed_in.date()}) ---")
-    
     # Benchmark
     bench_trades_in = mc.create_benchmark_trades(symbol, sd_in, ed_in)
     portvals_bench_in = mc.compute_portvals(bench_trades_in, start_val=sv, commission=commission, impact=impact, symbol=symbol)
     
     # Manual Strategy
     trades_manual_in = manual_strategy.testPolicy(symbol=symbol, sd=sd_in, ed=ed_in, sv=sv)
+
     portvals_manual_in = mc.compute_portvals(trades_manual_in, start_val=sv, commission=commission, impact=impact, symbol=symbol)
     
     # Strategy Learner
     trades_learner_in = learner.testPolicy(symbol=symbol, sd=sd_in, ed=ed_in, sv=sv)
     portvals_learner_in = mc.compute_portvals(trades_learner_in, start_val=sv, commission=commission, impact=impact, symbol=symbol)
+
+    print(trades_learner_in)
+    num_trades = (trades_learner_in.iloc[:, 0] != 0).sum()
+    cr, adr, sddr = mc.compute_portfolio_stats(portvals_learner_in)
+    print(f"1:  Cumulative Return (CR): {cr:.6f}, Number of Trades: {num_trades}")
     
     # Generate Chart and Table (In-Sample)
     generate_plot_and_stats(
@@ -80,8 +84,6 @@ def run_experiment1(symbol="JPM", sv=100000,
     )
 
     # --- 3. Out-of-Sample Data ---
-    print(f"--- Out-of-Sample ({sd_out.date()} - {ed_out.date()}) ---")
-    
     # Benchmark
     bench_trades_out = mc.create_benchmark_trades(symbol, sd_out, ed_out)
     portvals_bench_out = mc.compute_portvals(bench_trades_out, start_val=sv, commission=commission, impact=impact, symbol=symbol)
@@ -118,7 +120,6 @@ def generate_plot_and_stats(portvals_list, trades_list, labels, title, filename)
         
         # Calculate and print statistics
         cr, adr, sddr = mc.compute_portfolio_stats(portvals)
-        print(f"  {label}: CR={cr:.6f}, ADR={adr:.6f}, SDDR={sddr:.6f}")
     
     # Plot Trading Signals (Only for ManualStrategy and StrategyLearner)
     # For ManualStrategy (Red) and StrategyLearner (Green)
