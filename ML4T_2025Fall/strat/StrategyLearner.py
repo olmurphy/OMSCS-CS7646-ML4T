@@ -108,10 +108,14 @@ class StrategyLearner(object):
         # Create labels Y
         Y = pd.Series(index=indicators_df.index, data=0) # 0: Hold/Close Position
 
-        # 1: Strong Buy signal (Future price increase > Threshold)
-        Y[returns > self.threshold] = 1
-        # -1: Strong Sell signal (Future price decrease > Threshold + Market Impact)
-        Y[returns < -self.threshold] = -1
+        # Calculate the total cost of a round-trip trade (buy + sell)
+        round_trip_cost = 2 * self.impact # Commission is 0.00 for Experiment 2
+
+        # 1: Strong Buy signal (Future price increase > Threshold + Round Trip Cost)
+        Y[returns > (self.threshold + round_trip_cost)] = 1
+        # -1: Strong Sell signal (Future price decrease > Threshold + Round Trip Cost)
+        # Note: returns is already negative for a loss, so we compare its magnitude
+        Y[returns < -(self.threshold + round_trip_cost)] = -1
 
         # Remove NaN rows introduced by shift
         Y = Y.dropna()
