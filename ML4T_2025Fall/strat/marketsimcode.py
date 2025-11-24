@@ -10,58 +10,58 @@ def compute_portvals(
     symbol="JPM"
 ):
     """
-    使用交易数据框计算投资组合价值。
-    orders_df: 每日交易的数据框 (e.g., +1000, -2000, 0)
-    start_val: 初始资金 (sv)
-    commission: 交易佣金
-    impact: 市场影响
-    symbol: 交易的股票代码
-    返回: 投资组合每日价值的 Pandas Series
+    Computes the portfolio value using the daily trades DataFrame.
+    orders_df: DataFrame of daily trades (e.g., +1000, -2000, 0)
+    start_val: Initial cash (sv)
+    commission: Transaction commission
+    impact: Market impact
+    symbol: The stock ticker being traded
+    Returns: A Pandas Series of the portfolio's daily value
     """
     
-    # 1. 获取价格数据
+    # 1. Get price data
     dates = orders_df.index
     start_date = dates.min()
     end_date = dates.max()
     
-    # 注意：这里的 get_data 必须是可用的。
-    # 假设 get_data 已经在 marketsimcode.py 或其导入的 util.py 中可用
+    # Note: get_data must be available here.
+    # Assumes get_data is available in marketsimcode.py or the imported util.py
     prices_all = get_data([symbol, 'SPY'], pd.date_range(start_date, end_date)) 
-    prices = prices_all[[symbol]].copy() # 目标股票的调整后收盘价，确保是 DataFrame
+    prices = prices_all[[symbol]].copy() # Adjusted closing price of the target stock, ensure it's a DataFrame
     prices = prices.fillna(method='ffill').fillna(method='bfill')
     
-    # 2. 交易矩阵 (记录每日的股数变化)
-    trades = orders_df.copy() # 使用输入的交易数据框
+    # 2. Trades matrix (records daily change in share count)
+    trades = orders_df.copy() # Use the input trades DataFrame
     
-    # 3. 持仓矩阵 (记录每日结束时的持仓数量)
+    # 3. Holdings matrix (records share count at the end of each day)
     holdings = pd.DataFrame(index=trades.index, columns=[symbol, 'Cash'], data=0.0)
     
-    # 4. 初始化
+    # 4. Initialization
     current_cash = start_val
     current_holdings = 0
     
-    # 5. 遍历交易
+    # 5. Iterate through trades
     for date in trades.index:
         current_trade = trades.loc[date, symbol]
         price = prices.loc[date, symbol]
         
-        # 交易成本 (佣金 + 市场影响)
+        # Transaction cost (commission + market impact)
         trade_cost = commission + abs(current_trade) * price * impact
         
-        # 现金流: 股票价值 +/- 交易成本
+        # Cash flow: stock value +/- transaction cost
         cash_flow = -current_trade * price - trade_cost
         
-        # 更新持仓和现金
+        # Update holdings and cash
         current_holdings += current_trade
         current_cash += cash_flow
         
         holdings.loc[date, symbol] = current_holdings
         holdings.loc[date, 'Cash'] = current_cash
         
-    # 6. 投资组合价值 (需要考虑非交易日的填充)
-    # 确保 holdings 和 prices 的索引匹配，并处理非交易日
+    # 6. Portfolio Value (needs to handle filling non-trading days)
+    # Ensure indices of holdings and prices match and handle non-trading days
     
-    # 合并 prices 和 holdings 索引，用于计算最终的投资组合价值
+    # Combine prices and holdings indices to calculate the final portfolio value
     all_dates = pd.date_range(start_date, end_date)
     holdings = holdings.reindex(all_dates).fillna(method='ffill')
     prices = prices.reindex(all_dates).fillna(method='ffill')
@@ -72,24 +72,24 @@ def compute_portvals(
 
 def compute_portfolio_stats(port_val, rfr=0.0, sf=252.0):
     """
-    计算投资组合的累计收益、平均每日收益和每日收益标准差。
-    这是metrics.py中要求的核心功能。
-    port_val: 投资组合价值的 Pandas Series
-    rfr: 无风险利率 (默认 0.0)
-    sf: 采样频率 (默认 252.0，代表一年中的交易日)
-    返回: cr (累计收益), adr (平均每日收益), sddr (每日收益标准差)
+    Computes the portfolio's cumulative return, average daily return, and standard deviation of daily return.
+    This is the core function required by metrics.py.
+    port_val: Pandas Series of portfolio values
+    rfr: Risk-free rate (default 0.0)
+    sf: Sampling frequency (default 252.0, representing trading days in a year)
+    Returns: cr (cumulative return), adr (average daily return), sddr (standard deviation of daily return)
     """
-    # 每日收益率 (Daily Returns)
-    # 使用 .iloc[1:] 排除第一个 NaN
+    # Daily Returns (dr)
+    # Use .iloc[1:] to exclude the first NaN
     dr = (port_val / port_val.shift(1) - 1).iloc[1:]
 
-    # 累计收益率 (Cumulative Return)
+    # Cumulative Return (cr)
     cr = (port_val.iloc[-1] / port_val.iloc[0]) - 1
 
-    # 平均每日收益率 (Average Daily Return)
+    # Average Daily Return (adr)
     adr = dr.mean()
 
-    # 每日收益率的标准差 (Standard Deviation of Daily Return)
+    # Standard Deviation of Daily Return (sddr)
     sddr = dr.std()
 
     return cr, adr, sddr
@@ -141,24 +141,24 @@ def compute_portfolio_values(df_trades, start_val=100000, commission=0.00, impac
 
 def create_benchmark_trades(symbol, sd, ed):
     """
-    创建基准策略的交易数据框: 第一天买入 1000 股，持有至结束。
+    Creates the benchmark strategy's trades DataFrame: buys 1000 shares on the first day and holds until the end.
     """
-    # 假设 get_data 已经在 marketsimcode.py 或其导入的 util.py 中可用
+    # Assumes get_data is available in marketsimcode.py or the imported util.py
     dates = pd.date_range(sd, ed)
     prices_all = get_data([symbol], dates)
     prices_df = prices_all[[symbol]].fillna(method='ffill').fillna(method='bfill')
     
-    # 初始化交易数据框
+    # Initialize trades DataFrame
     trades = pd.DataFrame(0, index=prices_df.index, columns=[symbol])
     
-    # 项目要求: 以 10 万美元现金为初始资金，投资于首个交易日使用的股票代码的 1000 股
-    # 第一天买入 1000 股
+    # Project Requirement: Start with $100,000 in cash and invest in 1000 shares of the stock ticker used on the first trading day.
+    # Buy 1000 shares on the first day
     if not prices_df.empty:
         first_trade_date = prices_df.index[0]
         trades.loc[first_trade_date, symbol] = 1000
     
-    # 注意：我们通常不需要在最后一天平仓，因为 compute_portvals 会处理最后一个交易日的资产价值。
-    # 如果项目要求平仓，则取消注释以下代码：
+    # Note: We usually don't need to close the position on the last day, as compute_portvals handles the asset value on the last trading day.
+    # If the project requires closing the position, uncomment the following code:
     # if not prices_df.empty and len(prices_df) > 1:
     #     last_trade_date = prices_df.index[-1]
     #     trades.loc[last_trade_date, symbol] = -1000 
