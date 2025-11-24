@@ -90,7 +90,7 @@ def run_experiment2(symbol="JPM", sv=100000,
     plt.ylabel("Normalized Portfolio Value")
     plt.legend()
     plt.grid(True)
-    plt.savefig("experiment2_impact_performance.png")
+    plt.savefig("images/" + "experiment2_impact_performance.png")
     plt.close()
 
     # --- 6. Generate Chart (Number of Trades) ---
@@ -103,7 +103,7 @@ def run_experiment2(symbol="JPM", sv=100000,
     plt.xlabel("Impact Value")
     plt.ylabel("Number of Trades")
     plt.grid(axis='y')
-    plt.savefig("experiment2_impact_trades.png")
+    plt.savefig("images/" + "experiment2_impact_trades.png")
     plt.close()
     
     # 7. Validate Differences in Trading Strategy (Textual Description)

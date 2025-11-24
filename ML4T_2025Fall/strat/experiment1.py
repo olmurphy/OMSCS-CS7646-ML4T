@@ -156,7 +156,7 @@ def generate_plot_and_stats(portvals_list, trades_list, labels, title, filename)
     plt.ylabel("Normalized Portfolio Value")
     plt.legend()
     plt.grid(True)
-    plt.savefig(filename)
+    plt.savefig("images/" + filename)
     plt.close()
 
 def author():                                                                                             
